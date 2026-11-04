@@ -48,7 +48,7 @@ Reihenfolge laut Auftrag:
 ## Befehle
 - `./einrichten.sh --rueckfall`: einmal, richtet alles ein (ohne `--rueckfall` kein Basic Pitch).
 - `.venv/bin/python -m umwandler "song.m4a" zielordner [--band] [--trennpunkt 60]`: eine Datei umwandeln, schreibt Original, Mittel, Leicht.
-- `.venv/bin/python test/testaufnahmen.py testlauf/aufnahmen`, dann `.venv/bin/python -m umwandler.testlauf`: Messung, Ergebnis in `testlauf/ergebnis/` (Dauer etwa 5 Minuten).
+- `.venv/bin/python test/testaufnahmen.py testlauf/aufnahmen`, dann `.venv/bin/python -m umwandler.testlauf`: Messung, Ergebnis in `testlauf/ergebnis/`.
 - `.venv/bin/python -m unittest discover -s test`: Tests, vor jedem Commit grün.
 
 ## Rahmen
