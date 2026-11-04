@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Schleife ziehen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; position: relative; overflow: hidden; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: #050507">
+
+  <sc-for list="{{lane}}" as="n" hint-placeholder-count="12"><div style="{{n}}"></div></sc-for>
+  <div style="position: absolute; left: 0; top: 628px; width: 1280px; height: 3px; background: linear-gradient(90deg, #FF4D7D 0%, #FF4D7D 38%, #FFE14D 62%, #FFE14D 100%); opacity: .5"></div>
+  <div style="position: absolute; left: 0; top: 630px; width: 1280px; height: 170px; background: #0A0A0C">
+    <sc-for list="{{whites}}" as="k" hint-placeholder-count="52"><div style="{{k}}"></div></sc-for>
+    <sc-for list="{{blacks}}" as="k" hint-placeholder-count="36"><div style="{{k}}"></div></sc-for>
+  </div>
+  <div style="position: absolute; left: 0; top: 0; width: 1280px; height: 800px; background: rgba(5,5,7,.62)"></div>
+
+  <div style="position: absolute; left: 0; top: 0; width: 1280px; height: 60px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; gap: 16px; background: rgba(8,8,10,.96); border-bottom: 1px solid rgba(255,255,255,.07)">
+    <div style="display: flex; flex-direction: column; gap: 1px; flex: none">
+      <span style="font-size: 14px; font-weight: 600">Glatteis</span>
+      <span style="font-size: 12px; color: rgba(237,237,240,.55)">Schleife wählen</span>
+    </div>
+    <div style="flex: 1; display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 3px; min-width: 0">
+      <sc-for list="{{cells}}" as="c" hint-placeholder-count="32"><div style="{{c}}"></div></sc-for>
+    </div>
+    <span style="flex: none; font-size: 12.5px; color: rgba(237,237,240,.55)">ziehen zum Wählen</span>
+  </div>
+
+  <div style="position: absolute; left: 20px; top: 72px; width: 1240px; box-sizing: border-box; padding: 50px 0 14px; border-radius: 20px; background: rgba(14,14,18,.96); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 24px 60px -20px rgba(0,0,0,.9)">
+    <div style="position: relative; height: 190px; margin: 0 20px">
+      <sc-for list="{{barGrid}}" as="g" hint-placeholder-count="33"><div style="{{g}}"></div></sc-for>
+      <div style="{{selBox}}"></div>
+      <div style="{{dragged}}"></div>
+      <sc-for list="{{roll}}" as="r" hint-placeholder-count="120"><div style="{{r}}"></div></sc-for>
+      <div style="{{handleL}}"></div>
+      <div style="{{handleR}}"></div>
+      <div style="{{tip}}">Takt 9 – 12½ · 23 Noten</div>
+      <div style="{{snapTag}}">an letzten Ton angepasst</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0; margin: 8px 20px 0; font-size: 11.5px; color: rgba(237,237,240,.45)">
+      <sc-for list="{{barNums}}" as="b" hint-placeholder-count="8"><span style="{{b.style}}">{{b.n}}</span></sc-for>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 20px; top: 370px; width: 1240px; display: flex; align-items: center; gap: 10px">
+    <span style="font-size: 12.5px; color: rgba(237,237,240,.55); margin-right: 4px">Wiederholen</span>
+    <div style="display: flex; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.06)">
+      <button style="height: 30px; padding: 0 12px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Endlos</button>
+      <button style="height: 30px; padding: 0 12px; border: 0; border-radius: 999px; font-size: 12.5px; background: transparent; color: rgba(237,237,240,.65)">3×</button>
+      <button style="height: 30px; padding: 0 12px; border: 0; border-radius: 999px; font-size: 12.5px; background: transparent; color: rgba(237,237,240,.65)">5×</button>
+    </div>
+    <button style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,225,77,.16); color: #FFE14D">Jede Runde 5 % schneller</button>
+    <button style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; font-size: 12.5px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.7)">1 Takt Anlauf</button>
+    <div style="flex: 1"></div>
+    <a href="Ueben.dc.html" style="display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px; font-size: 13.5px; color: rgba(237,237,240,.7); text-decoration: none">Abbrechen</a>
+    <a href="Ueben.dc.html" style="display: inline-flex; align-items: center; height: 42px; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #050507; font-size: 14px; font-weight: 600; text-decoration: none">Schleife üben</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+  renderVals() {
+    const R = '#FFE14D', Lc = '#FF4D7D';
+    const PW = 1200, PH = 190, BW = PW / 32;
+    let s = 9; const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const selA = 8, selB = 12.5, dragB = 12;
+    const inSel = (t) => t >= selA && t < selB;
+    const roll = [];
+    for (let bar = 0; bar < 32; bar++) {
+      const motif = [0, 2, 4, 2, 5, 4, 2, 0];
+      for (let q = 0; q < 4; q++) {
+        const t = bar + q / 4; const p = motif[(bar + q) % 8] + (bar % 4 === 3 ? 3 : 0);
+        const y = 20 + (12 - p) * 7; const len = (q === 3 && bar % 2 ? .45 : .22);
+        const on = inSel(t);
+        roll.push(`position:absolute;box-sizing:border-box;left:${(t * BW + 1).toFixed(1)}px;top:${y.toFixed(0)}px;width:${(len * BW).toFixed(1)}px;height:6px;border-radius:3px;background:${this.rgba(R, on ? .55 : .14)};border:1px solid ${this.rgba(R, on ? 1 : .3)};box-shadow:${on ? `0 0 6px ${this.rgba(R,.6)}` : 'none'};`);
+      }
+      const lp = [0, 3, 1, 4][bar % 4]; const ly = 130 + lp * 8; const on = inSel(bar);
+      roll.push(`position:absolute;box-sizing:border-box;left:${(bar * BW + 1).toFixed(1)}px;top:${ly}px;width:${(BW * .95).toFixed(1)}px;height:7px;border-radius:3px;background:${this.rgba(Lc, on ? .5 : .12)};border:1px solid ${this.rgba(Lc, on ? 1 : .28)};box-shadow:${on ? `0 0 6px ${this.rgba(Lc,.6)}` : 'none'};`);
+    }
+    roll.push(`position:absolute;box-sizing:border-box;left:${(12 * BW + 1).toFixed(1)}px;top:62px;width:${(BW * .48).toFixed(1)}px;height:6px;border-radius:3px;background:${this.rgba(R,.55)};border:1px solid ${R};box-shadow:0 0 6px ${this.rgba(R,.6)};`);
+    const barGrid = [];
+    for (let b = 0; b <= 32; b++) barGrid.push(`position:absolute;left:${(b * BW).toFixed(1)}px;top:0;width:1px;height:${PH}px;background:rgba(255,255,255,${b % 4 === 0 ? .1 : .04});`);
+    const selBox = `position:absolute;left:${(selA * BW).toFixed(1)}px;top:-6px;width:${((selB - selA) * BW).toFixed(1)}px;height:${PH + 12}px;border-radius:10px;background:rgba(255,225,77,.07);box-shadow:inset 0 0 0 1.5px rgba(255,225,77,.7);`;
+    const dragged = `position:absolute;left:${(dragB * BW).toFixed(1)}px;top:-6px;width:0;height:${PH + 12}px;border-left:1px dashed rgba(255,255,255,.45);`;
+    const handle = (x) => `position:absolute;left:${(x - 5).toFixed(1)}px;top:${PH / 2 - 22}px;width:10px;height:44px;border-radius:5px;background:#FFE14D;box-shadow:0 0 12px rgba(255,225,77,.6);`;
+    const handleL = handle(selA * BW), handleR = handle(selB * BW);
+    const tip = `position:absolute;left:${(selA * BW).toFixed(1)}px;top:-40px;height:26px;padding:0 10px;border-radius:999px;background:#FFE14D;color:#050507;font-size:12.5px;font-weight:600;display:flex;align-items:center;white-space:nowrap;`;
+    const snapTag = `position:absolute;left:${(selB * BW + 10).toFixed(1)}px;top:${PH - 24}px;height:22px;padding:0 8px;border-radius:999px;background:rgba(255,255,255,.08);color:rgba(237,237,240,.8);font-size:11.5px;display:flex;align-items:center;white-space:nowrap;`;
+    const barNums = [];
+    for (let b = 1; b <= 32; b++) barNums.push({n: (b === 1 || b % 4 === 1) ? String(b) : '', style: `width:${BW.toFixed(2)}px;flex:none;${b >= 9 && b <= 13 ? 'color:#FFE14D;' : ''}`});
+    const cells = [];
+    for (let i = 1; i <= 32; i++) {
+      let bg = 'rgba(255,255,255,.07)';
+      if (i <= 8) bg = 'rgba(61,182,122,.38)';
+      if (i >= 9 && i <= 12) bg = '#FFE14D';
+      if (i === 13) bg = 'linear-gradient(90deg,#FFE14D 50%,rgba(255,255,255,.07) 50%)';
+      cells.push(`height:22px;border-radius:4px;background:${bg};`);
+    }
+    const isW = (m) => [0,2,4,5,7,9,11].indexOf(m % 12) >= 0;
+    const lo = 21, hi = 108, W = 1280, KH = 170;
+    const wh = []; for (let m = lo; m <= hi; m++) if (isW(m)) wh.push(m);
+    const ww = W / wh.length; const pos = {};
+    wh.forEach((m, i) => { pos[m] = {x: i * ww, w: ww, white: true}; });
+    for (let m = lo; m <= hi; m++) if (!isW(m)) { const b = ww * .58; pos[m] = {x: pos[m-1].x + ww - b / 2, w: b, white: false}; }
+    const whites = [], blacks = [];
+    for (let m = lo; m <= hi; m++) { const k = pos[m];
+      if (k.white) whites.push(`position:absolute;left:${(k.x + .5).toFixed(1)}px;top:0;width:${(k.w - 1).toFixed(1)}px;height:${KH - 3}px;border-radius:0 0 4px 4px;background:linear-gradient(180deg,#BFC0C8 0%,#ECECF0 40%,#DCDCE2 100%);`);
+      else blacks.push(`position:absolute;left:${k.x.toFixed(1)}px;top:0;width:${k.w.toFixed(1)}px;height:${Math.round(KH * .6)}px;border-radius:0 0 3px 3px;background:linear-gradient(180deg,#26262C 0%,#101013 85%,#2E2E35 100%);`);
+    }
+    const lane = [];
+    [[64,420,60,R],[67,340,60,R],[69,240,90,R],[72,120,120,R],[45,380,250,Lc],[52,380,250,Lc]].forEach(([m, y, h, c]) => { const k = pos[m]; lane.push(`position:absolute;box-sizing:border-box;left:${(k.x + 4).toFixed(1)}px;top:${y}px;width:${(k.w - 8).toFixed(1)}px;height:${h}px;border-radius:6px;background:${this.rgba(c,.3)};border:2px solid ${c};box-shadow:0 0 12px ${this.rgba(c,.5)};`); });
+    return {roll, barGrid, selBox, dragged, handleL, handleR, tip, snapTag, barNums, cells, whites, blacks, lane};
+  }
+}
+</script>
+</body>
+</html>

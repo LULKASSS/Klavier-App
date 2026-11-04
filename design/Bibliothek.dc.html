@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Bibliothek</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; display: flex; flex-direction: column; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: radial-gradient(ellipse 900px 440px at 12% 108%, rgba(255,77,125,.11), transparent 70%), radial-gradient(ellipse 900px 440px at 88% 108%, rgba(255,225,77,.075), transparent 70%), radial-gradient(ellipse 1300px 520px at 50% -25%, rgba(255,77,125,.045), transparent 70%), #050507">
+
+  <div style="height: 64px; flex: none; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.07)">
+    <label style="display: flex; align-items: center; gap: 8px; height: 38px; width: 300px; box-sizing: border-box; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.5)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5 14 14"></path></svg>
+      <input aria-label="Song suchen" placeholder="Song suchen" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #EDEDF0; font-size: 13.5px">
+    </label>
+    <div style="flex: 1"></div>
+    <a href="Einrichten.dc.html" style="display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(61,182,122,.12); color: #3DB67A; font-size: 12.5px; font-weight: 500; text-decoration: none">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #3DB67A"></span>FP-30X
+    </a>
+    <a href="Einstellungen.dc.html" aria-label="Einstellungen" style="width: 38px; height: 38px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.75); display: flex; align-items: center; justify-content: center">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h7M12 4h2M2 12h2M7 12h7"></path><circle cx="10.5" cy="4" r="1.6"></circle><circle cx="5.5" cy="12" r="1.6"></circle></svg>
+    </a>
+    <a href="Umwandeln.dc.html" style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; background: #FFFFFF; color: #050507; font-size: 13.5px; font-weight: 600; text-decoration: none">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>
+      Audiodatei hinzufügen
+    </a>
+  </div>
+
+  <div style="flex: 1; box-sizing: border-box; padding: 28px 32px; display: flex; flex-direction: column; gap: 26px; overflow: hidden">
+    <div style="position: relative; height: 210px; border-radius: 22px; overflow: hidden; background: radial-gradient(ellipse 600px 260px at 80% 100%, rgba(255,225,77,.10), transparent 70%), radial-gradient(ellipse 500px 260px at 55% 100%, rgba(255,77,125,.10), transparent 70%), rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07)">
+      <sc-for list="{{heroRoll}}" as="r" hint-placeholder-count="30"><div style="{{r}}"></div></sc-for>
+      <div style="position: absolute; left: 0; top: 0; width: 640px; height: 210px; background: linear-gradient(90deg, #0B0B0E 55%, transparent)"></div>
+      <div style="position: absolute; left: 28px; top: 24px; width: 520px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Weiter üben</span>
+        <span style="font-size: 34px; font-weight: 600; letter-spacing: -0.02em">Glatteis</span>
+        <span style="font-size: 13.5px; color: rgba(237,237,240,.65)">Mittel · Teil 3 von 8 · 14 Runden</span>
+        <div style="display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 2px; width: 360px; margin-top: 4px">
+          <sc-for list="{{heroCells}}" as="c" hint-placeholder-count="32"><div style="{{c}}"></div></sc-for>
+        </div>
+        <a href="Uebungsplan.dc.html" style="align-self: flex-start; margin-top: 6px; display: inline-flex; align-items: center; height: 40px; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #050507; font-size: 13.5px; font-weight: 600; text-decoration: none">Weiter üben</a>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 15px; font-weight: 600">Songs</span>
+      <div style="display: flex; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.06)">
+        <button style="height: 28px; padding: 0 12px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Zuletzt</button>
+        <button style="height: 28px; padding: 0 12px; border: 0; border-radius: 999px; font-size: 12.5px; background: transparent; color: rgba(237,237,240,.65)">A–Z</button>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="3">
+        <a href="Vorbereiten.dc.html" style="display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); text-decoration: none; color: #EDEDF0">
+          <div style="position: relative; height: 120px; background: #08080A; overflow: hidden">
+            <sc-for list="{{c.roll}}" as="r" hint-placeholder-count="16"><div style="{{r}}"></div></sc-for>
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, #FF4D7D 0%, #FF4D7D 38%, #FFE14D 62%, #FFE14D 100%); opacity: .8"></div>
+          </div>
+          <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+              <span style="font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.name}}</span>
+              <span style="{{c.stateStyle}}">{{c.state}}</span>
+            </div>
+            <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">{{c.meta}}</span>
+            <div style="height: 3px; border-radius: 2px; background: rgba(255,255,255,.08)"><div style="{{c.bar}}"></div></div>
+          </div>
+        </a>
+      </sc-for>
+      <a href="Umwandeln.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border-radius: 18px; background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); color: rgba(237,237,240,.6); text-decoration: none; font-size: 13.5px">
+        <span style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.06); display: flex; align-items: center; justify-content: center">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>
+        </span>
+        Audiodatei hierher ziehen
+        <span style="font-size: 12px; color: rgba(237,237,240,.4)">MP3, WAV, M4A</span>
+      </a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+  roll(seed, W, H, n, upto) {
+    let s = seed; const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const right = rnd() < .62; const c = right ? '#FFE14D' : '#FF4D7D';
+      const x = right ? W * (.48 + rnd() * .42) : W * (.1 + rnd() * .34);
+      const w = 5 + rnd() * 4; const h = right ? 10 + rnd() * 26 : 24 + rnd() * 40; const y = rnd() * (H - 8) - h * .3;
+      const op = upto && y < H * upto ? .18 : 1;
+      out.push(`position:absolute;box-sizing:border-box;left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;border-radius:3px;background:${this.rgba(c,.3 * op)};border:1.5px solid ${this.rgba(c, op)};box-shadow:0 0 6px ${this.rgba(c,.6 * op)};`);
+    }
+    return out;
+  }
+  renderVals() {
+    const heroRoll = this.roll(3, 1216, 210, 42).map((st) => st.replace(/left:([\d.]+)px/, (m, v) => `left:${(+v * .7 + 400).toFixed(1)}px`));
+    const heroCells = [];
+    for (let i = 1; i <= 32; i++) heroCells.push(`height:8px;border-radius:2px;background:${i <= 8 ? 'rgba(61,182,122,.6)' : (i === 9 ? '#FFFFFF' : 'rgba(255,255,255,.1)')};`);
+    const cards = [
+      {name: 'Wildberry Lillet', state: 'sicher', stateStyle: 'font-size:12px;color:#3DB67A;flex:none', meta: 'Leicht · 28 Takte', bar: 'width:100%;height:3px;border-radius:2px;background:#3DB67A', roll: this.roll(11, 290, 120, 18)},
+      {name: 'Mangos mit Chili', state: 'wird umgewandelt', stateStyle: 'font-size:12px;color:#FFE14D;flex:none', meta: 'Noten erkennen · 64 %', bar: 'width:64%;height:3px;border-radius:2px;background:#FFE14D', roll: this.roll(17, 290, 120, 18, .55)},
+      {name: 'Aufnahme 03.11.', state: '3 / 16', stateStyle: 'font-size:12px;color:rgba(237,237,240,.55);flex:none', meta: 'Original · 16 Takte', bar: 'width:19%;height:3px;border-radius:2px;background:#3DB67A', roll: this.roll(29, 290, 120, 18)}
+    ];
+    return {heroRoll, heroCells, cards};
+  }
+}
+</script>
+</body>
+</html>

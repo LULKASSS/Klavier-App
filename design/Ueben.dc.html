@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Üben</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Noto+Music&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; position: relative; overflow: hidden; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: #050507">
+
+  <div style="{{haze}}"></div>
+  <sc-for list="{{bars}}" as="b" hint-placeholder-count="3"><div style="{{b}}"></div></sc-for>
+  <sc-for list="{{notes}}" as="n" hint-placeholder-count="20"><div style="{{n}}"></div></sc-for>
+  <sc-for list="{{sparks}}" as="p" hint-placeholder-count="40"><div style="{{p}}"></div></sc-for>
+  <div style="{{glowBand}}"></div>
+  <div style="{{glowLine}}"></div>
+
+  <div style="position: absolute; left: 0; top: 630px; width: 1280px; height: 170px; background: #0A0A0C">
+    <sc-for list="{{whites}}" as="k" hint-placeholder-count="52"><div style="{{k}}"></div></sc-for>
+    <sc-for list="{{cones}}" as="c" hint-placeholder-count="3"><div style="{{c}}"></div></sc-for>
+    <sc-for list="{{blacks}}" as="k" hint-placeholder-count="36"><div style="{{k}}"></div></sc-for>
+  </div>
+  <sc-for list="{{bursts}}" as="u" hint-placeholder-count="3"><div style="{{u}}"></div></sc-for>
+
+  <div style="position: absolute; left: 0; top: 60px; width: 1280px; height: 216px; background: rgba(8,8,10,.86); border-bottom: 1px solid rgba(255,255,255,.07)">
+    <sc-for list="{{systems}}" as="y" hint-placeholder-count="2">
+      <div style="{{y.wrap}}">
+        <sc-for list="{{y.lines}}" as="s" hint-placeholder-count="10"><div style="{{s}}"></div></sc-for>
+        <div style="{{y.brace}}"></div>
+        <div style="{{y.gclef}}">𝄞</div>
+        <div style="{{y.fclef}}">𝄢</div>
+        <div style="{{y.numStyle}}">{{y.num}}</div>
+        <sc-for list="{{y.barLines}}" as="b" hint-placeholder-count="4"><div style="{{b}}"></div></sc-for>
+        <sc-for list="{{y.ledgers}}" as="g" hint-placeholder-count="4"><div style="{{g}}"></div></sc-for>
+        <sc-for list="{{y.heads}}" as="h" hint-placeholder-count="16"><div style="{{h}}"></div></sc-for>
+      </div>
+    </sc-for>
+    <div style="{{playhead}}"></div>
+  </div>
+
+  <div style="position: absolute; left: 0; top: 0; width: 1280px; height: 60px; box-sizing: border-box; padding: 0 20px; display: flex; align-items: center; gap: 16px; background: rgba(8,8,10,.86); border-bottom: 1px solid rgba(255,255,255,.07)">
+    <div style="display: flex; flex-direction: column; gap: 1px; flex: none">
+      <span style="font-size: 14px; font-weight: 600">Glatteis</span>
+      <span style="font-size: 12px; color: rgba(237,237,240,.55)">Mittel · Takt 9 / 32</span>
+    </div>
+    <div style="flex: 1; display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 3px; min-width: 0">
+      <sc-for list="{{cells}}" as="c" hint-placeholder-count="32"><div style="{{c}}"></div></sc-for>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; flex: none">
+      <div style="display: flex; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.06)">
+        <button style="height: 28px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Beide</button>
+        <button style="height: 28px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; background: transparent; color: rgba(237,237,240,.65)">R</button>
+        <button style="height: 28px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; background: transparent; color: rgba(237,237,240,.65)">L</button>
+      </div>
+      <button style="height: 32px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.06); color: #FFFFFF">70 %</button>
+      <button style="height: 32px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Warten</button>
+      <a href="Schleife.dc.html" style="display: inline-flex; align-items: center; height: 32px; padding: 0 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF; text-decoration: none">Schleife</a>
+      <button style="height: 32px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Mittel</button>
+      <button style="height: 32px; padding: 0 11px; border: 0; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Noten</button>
+      <a href="Ergebnis.dc.html" aria-label="Pause" style="width: 36px; height: 36px; border-radius: 999px; background: #FFFFFF; color: #050507; display: flex; align-items: center; justify-content: center">
+        <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2" width="3" height="10" rx="1" fill="currentColor"></rect><rect x="8.5" y="2" width="3" height="10" rx="1" fill="currentColor"></rect></svg>
+      </a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+  song() {
+    return [[64,0,1,'r'],[67,1,1,'r'],[69,2,1.5,'r'],[71,3.5,.5,'r'],[72,4,2,'r'],[69,6,1,'r'],[67,7,1,'r'],[64,8,1,'r'],[65,9,1,'r'],[67,10,1,'r'],[66,11,1,'r'],[67,12,2,'r'],[72,14,1,'r'],[71,15,1,'r'],
+            [76,2.5,.3,'r'],[79,3,.3,'r'],[76,5,.3,'r'],[79,5.5,.3,'r'],[84,6.5,.3,'r'],[81,7.5,.3,'r'],[84,8.5,.3,'r'],[79,9.5,.3,'r'],
+            [45,0,4,'l'],[52,0,4,'l'],[40,4,4,'l'],[47,4,4,'l'],[41,8,4,'l'],[48,8,4,'l'],[43,12,4,'l'],[50,12,4,'l'],[33,2,.4,'l'],[36,6,.4,'l']];
+  }
+  renderVals() {
+    const R = '#FFE14D', Lc = '#FF4D7D';
+    const W = 1280, L = 630, P = 64, now = 1.6, KH = 170, lo = 21, hi = 108, LT = 276;
+    const isW = (m) => [0,2,4,5,7,9,11].indexOf(m % 12) >= 0;
+    const wh = []; for (let m = lo; m <= hi; m++) if (isW(m)) wh.push(m);
+    const ww = W / wh.length; const pos = {};
+    wh.forEach((m, i) => { pos[m] = {x: i * ww, w: ww, white: true}; });
+    for (let m = lo; m <= hi; m++) if (!isW(m)) { const b = ww * .58; pos[m] = {x: pos[m-1].x + ww - b / 2, w: b, white: false}; }
+    let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+    const active = {}; const notes = [];
+    this.song().forEach(([m, s, l, h]) => {
+      const bottom = L - (s - now) * P; const top0 = bottom - l * P;
+      if (top0 > L || bottom < LT) return;
+      const b = Math.min(bottom, L); const top = Math.max(top0, LT);
+      const k = pos[m]; const on = s <= now && now < s + l; if (on) active[m] = h;
+      const c = h === 'r' ? R : Lc; const pad = k.white ? 4 : 2;
+      const w = k.w - 2 * pad; const hgt = Math.max(b - top - 3, 8); const rad = Math.min(6, w / 3);
+      const f = on ? .75 : .45;
+      notes.push(`position:absolute;box-sizing:border-box;left:${(k.x + pad).toFixed(1)}px;top:${top.toFixed(1)}px;width:${w.toFixed(1)}px;height:${hgt.toFixed(1)}px;border-radius:${rad.toFixed(1)}px;background:linear-gradient(180deg,${this.rgba(c, f * .35)},${this.rgba(c, f)});border:2px solid ${on ? '#FFFFFF' : c};box-shadow:0 0 6px ${this.rgba(c,.9)},0 0 18px ${this.rgba(c,.45)},inset 0 0 6px ${this.rgba(c,.5)};`);
+    });
+    const hz = []; const sparks = []; const bursts = []; const cones = [];
+    Object.keys(active).forEach((key) => {
+      const m = +key; const k = pos[m]; const c = active[m] === 'r' ? R : Lc; const cx = k.x + k.w / 2;
+      hz.push(`radial-gradient(ellipse 240px 300px at ${cx.toFixed(0)}px ${L * .85}px, ${this.rgba(c,.16)}, transparent 70%)`);
+      for (let i = 0; i < 26; i++) {
+        const dy = rnd() * 240; const x = cx + (rnd() - .5) * (40 + dy * .35); const y = L - 6 - dy; const sz = 1 + rnd() * 2;
+        const op = Math.max(0, .95 - dy / 260);
+        sparks.push(`position:absolute;left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${sz.toFixed(1)}px;height:${sz.toFixed(1)}px;border-radius:50%;background:${this.rgba(c, op)};box-shadow:0 0 4px ${this.rgba(c, op)};`);
+      }
+      bursts.push(`position:absolute;left:${(cx - 45).toFixed(1)}px;top:${L - 45}px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,.95) 0, ${this.rgba(c,.75)} 16%, transparent 62%);`);
+      cones.push(`position:absolute;left:${(cx - 70).toFixed(1)}px;top:0;width:140px;height:${KH}px;clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);background:linear-gradient(180deg, ${this.rgba(c,.55)}, transparent 85%);`);
+    });
+    const haze = `position:absolute;left:0;top:0;width:1280px;height:${L}px;background:${hz.length ? hz.join(',') : 'transparent'};`;
+    const bars = [];
+    for (let beat = 0; beat <= 12; beat += 4) { const y = L - (beat - now) * P; if (y > LT && y < L) bars.push(`position:absolute;left:0;width:1280px;top:${y.toFixed(1)}px;height:1px;background:rgba(255,255,255,.045);`); }
+    const grad = `linear-gradient(90deg, ${Lc} 0%, ${Lc} 38%, ${R} 62%, ${R} 100%)`;
+    const glowLine = `position:absolute;left:0;top:${L - 2}px;width:1280px;height:3px;background:${grad};box-shadow:0 0 10px rgba(255,255,255,.35);`;
+    const glowBand = `position:absolute;left:0;top:${L - 16}px;width:1280px;height:28px;background:${grad};opacity:.45;filter:blur(12px);`;
+    const whites = [], blacks = [];
+    for (let m = lo; m <= hi; m++) {
+      const k = pos[m]; const a = active[m]; const c = a === 'r' ? R : Lc;
+      if (k.white) whites.push(`position:absolute;left:${(k.x + .5).toFixed(1)}px;top:0;width:${(k.w - 1).toFixed(1)}px;height:${KH - 3}px;border-radius:0 0 4px 4px;background:${a ? `linear-gradient(180deg,#FFFFFF,${c} 30%,${this.rgba(c,.7)})` : 'linear-gradient(180deg,#BFC0C8 0%,#ECECF0 40%,#DCDCE2 100%)'};`);
+      else blacks.push(`position:absolute;left:${k.x.toFixed(1)}px;top:0;width:${k.w.toFixed(1)}px;height:${Math.round(KH * .6)}px;border-radius:0 0 3px 3px;background:${a ? `linear-gradient(180deg,${c},${this.rgba(c,.55)})` : 'linear-gradient(180deg,#26262C 0%,#101013 85%,#2E2E35 100%)'};box-shadow:0 2px 3px rgba(0,0,0,.5);`);
+    }
+    const cells = [];
+    for (let i = 1; i <= 32; i++) {
+      let bg = 'rgba(255,255,255,.07)', ring = 'none';
+      if (i <= 8) bg = 'rgba(61,182,122,.38)';
+      if (i >= 9 && i <= 12) bg = `repeating-linear-gradient(135deg, ${this.rgba(R,.7)} 0 3px, ${this.rgba(R,.18)} 3px 6px)`;
+      if (i === 9) ring = 'inset 0 0 0 2px #FFFFFF';
+      cells.push(`height:22px;border-radius:4px;background:${bg};box-shadow:${ring};`);
+    }
+    const IDX = {0:0, 2:1, 4:2, 5:3, 7:4, 9:5, 11:6};
+    const X0 = 150, XB = (1250 - X0) / 16, half = 3.5;
+    const systems = [0, 1].map((si) => {
+      const T0 = 42, B0 = 92; const fade = si === 1;
+      const lines = [];
+      [T0 - 28, T0 - 21, T0 - 14, T0 - 7, T0, B0 - 28, B0 - 21, B0 - 14, B0 - 7, B0].forEach((y) => lines.push(`position:absolute;left:96px;width:1160px;top:${y}px;height:1px;background:rgba(255,255,255,.26);`));
+      const barLines = [];
+      for (let beat = 0; beat <= 16; beat += 4) barLines.push(`position:absolute;left:${(X0 + beat * XB - 8).toFixed(1)}px;top:${T0 - 28}px;width:1px;height:${B0 - T0 + 29}px;background:rgba(255,255,255,.26);`);
+      const heads = [], ledgers = [];
+      this.song().forEach(([m, s, l, h]) => {
+        if (fade && m < 40) return;
+        if (fade) { s = (s + 5) % 16; if (h === 'r') m = isW(m + 2) ? m + 2 : m + 1; }
+        const x = X0 + s * XB;
+        const base = isW(m) ? m : m - 1;
+        const d = Math.floor(base / 12) * 7 + IDX[base % 12];
+        const y = h === 'r' ? T0 - (d - 37) * half : B0 - (d - 25) * half;
+        const past = !fade && s + l <= now; const c = h === 'r' ? R : Lc;
+        heads.push(`position:absolute;left:${(x - 5).toFixed(1)}px;top:${(y - 3.5).toFixed(1)}px;width:10px;height:7px;border-radius:50%;transform:rotate(-20deg);background:${c};box-shadow:0 0 6px ${this.rgba(c,.8)};opacity:${past ? .35 : 1};`);
+        if (h === 'l') for (let yy = B0 + 7; yy <= y + .1; yy += 7) ledgers.push(`position:absolute;left:${(x - 8).toFixed(1)}px;top:${yy}px;width:16px;height:1px;background:rgba(255,255,255,.35);`);
+        if (h === 'r') for (let yy = T0 - 35; yy >= y - .1; yy -= 7) ledgers.push(`position:absolute;left:${(x - 8).toFixed(1)}px;top:${yy}px;width:16px;height:1px;background:rgba(255,255,255,.35);`);
+      });
+      return {
+        wrap: `position:absolute;left:0;top:${si === 0 ? 8 : 112}px;width:1280px;height:104px;opacity:${fade ? .38 : 1};`,
+        lines, barLines, heads, ledgers,
+        brace: `position:absolute;left:96px;top:${T0 - 28}px;width:2px;height:${B0 - T0 + 29}px;background:rgba(255,255,255,.4);`,
+        gclef: `position:absolute;left:104px;top:${T0 - 40}px;font-family:'Noto Music',serif;font-size:36px;line-height:1;color:rgba(255,255,255,.8);`,
+        fclef: `position:absolute;left:106px;top:${B0 - 33}px;font-family:'Noto Music',serif;font-size:24px;line-height:1;color:rgba(255,255,255,.8);`,
+        num: si === 0 ? '9' : '13',
+        numStyle: `position:absolute;left:64px;top:${T0 - 32}px;font-size:12px;color:rgba(237,237,240,.55);`
+      };
+    });
+    const playhead = `position:absolute;left:${(X0 + now * XB).toFixed(1)}px;top:14px;width:2px;height:96px;border-radius:1px;background:#FFFFFF;box-shadow:0 0 10px rgba(255,255,255,.6);`;
+    return {notes, sparks, bursts, cones, haze, bars, glowLine, glowBand, whites, blacks, cells, systems, playhead};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Umwandler (Python 3.11, siehe einrichten.sh)
+piano-transcription-inference==0.0.6
+torch
+torchaudio
+demucs==4.1.0
+librosa
+soundfile
+mido
+pretty_midi
+mir_eval
+numpy
+scipy
+setuptools<81

@@ -1,0 +1,31 @@
+# Das Repo ist öffentlich: keine Audio-, Song- oder MIDI-Dateien hinein.
+*.mp3
+*.m4a
+*.aac
+*.wav
+*.aif
+*.aiff
+*.flac
+*.ogg
+*.opus
+*.mid
+*.midi
+*.mxl
+*.musicxml
+
+# Lokale Daten, Testläufe, Modelle
+daten/
+testlauf/
+.modelle/
+.venv/
+.venv-rueckfall/
+.werkzeug/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+dist/
+test-results/
+playwright-report/
+.DS_Store

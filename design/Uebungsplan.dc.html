@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Übungsplan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+@keyframes kt-pulse{0%,100%{box-shadow:inset 0 0 0 2px #FFE14D,0 0 18px rgba(255,225,77,.25)}50%{box-shadow:inset 0 0 0 2px #FFE14D,0 0 34px rgba(255,225,77,.45)}}
+@keyframes kt-draw{0%{stroke-dashoffset:2600}100%{stroke-dashoffset:0}}
+@keyframes kt-fade{0%{opacity:0}100%{opacity:1}}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; padding: 28px 32px; display: flex; flex-direction: column; gap: 22px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: radial-gradient(ellipse 900px 440px at 12% 108%, rgba(255,77,125,.11), transparent 70%), radial-gradient(ellipse 900px 440px at 88% 108%, rgba(255,225,77,.075), transparent 70%), radial-gradient(ellipse 1300px 520px at 50% -25%, rgba(255,77,125,.045), transparent 70%), #050507">
+
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="Bibliothek.dc.html" style="display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.75); font-size: 13px; text-decoration: none">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>Bibliothek
+    </a>
+    <div style="display: flex; gap: 8px">
+      <a href="Schleife.dc.html" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.06); color: #FFFFFF; font-size: 13px; font-weight: 500; text-decoration: none">Teile anpassen</a>
+      <button style="height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,255,255,.06); color: #FFFFFF; font-size: 13px; font-weight: 500">Sicher ab 3 Runden über 90 %</button>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: flex-end; justify-content: space-between">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; color: rgba(237,237,240,.55)">Glatteis · Mittel</span>
+      <span style="font-size: 52px; font-weight: 600; line-height: 1; letter-spacing: -0.03em">2 <span style="font-size: 26px; color: rgba(237,237,240,.5)">von 8 Teilen sicher</span></span>
+    </div>
+    <span style="font-size: 13.5px; color: rgba(237,237,240,.6); padding-bottom: 6px">97 Runden · 2 Std 10 Min · zuletzt heute</span>
+  </div>
+
+  <div style="position: relative; height: 210px; border-radius: 20px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07)">
+    <svg width="1216" height="210" viewBox="0 0 1216 210" role="img" aria-label="Wie oft jeder Takt gespielt wurde, über die Länge des Songs" style="position: absolute; left: 0; top: 0">
+      <defs>
+        <linearGradient id="kt-stroke" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#3DB67A"></stop><stop offset=".24" stop-color="#3DB67A"></stop>
+          <stop offset=".27" stop-color="#FFE14D"></stop><stop offset=".39" stop-color="#FFE14D"></stop>
+          <stop offset=".42" stop-color="#5A5A64"></stop><stop offset="1" stop-color="#5A5A64"></stop>
+        </linearGradient>
+        <linearGradient id="kt-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop>
+        </linearGradient>
+        <linearGradient id="kt-tint" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#3DB67A" stop-opacity=".45"></stop><stop offset=".25" stop-color="#3DB67A" stop-opacity=".45"></stop>
+          <stop offset=".27" stop-color="#FFE14D" stop-opacity=".45"></stop><stop offset=".39" stop-color="#FFE14D" stop-opacity=".45"></stop>
+          <stop offset=".42" stop-color="#FFFFFF" stop-opacity=".05"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity=".05"></stop>
+        </linearGradient>
+        <mask id="kt-mask"><path d="{{area}}" fill="url(#kt-fill)"></path></mask>
+      </defs>
+      <path d="M20 18V176M167 18V176M314 18V176M461 18V176M608 18V176M755 18V176M902 18V176M1049 18V176M1196 18V176" stroke="rgba(255,255,255,0.07)" stroke-width="1" fill="none"></path>
+      <line x1="20" x2="1196" y1="176" y2="176" stroke="rgba(255,255,255,0.12)" stroke-width="1"></line>
+      <rect x="0" y="0" width="1216" height="210" fill="url(#kt-tint)" mask="url(#kt-mask)" style="animation: kt-fade 1.2s ease 1s both"></rect>
+      <path d="{{line}}" fill="none" stroke="url(#kt-stroke)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="stroke-dasharray: 2600; animation: kt-draw 2.4s cubic-bezier(.22,1,.36,1) both; filter: drop-shadow(0 0 6px rgba(255,225,77,.45))"></path>
+      <circle cx="{{peakX}}" cy="{{peakY}}" r="4" fill="#FFFFFF"></circle>
+      <circle cx="{{nowX}}" cy="{{nowY}}" r="5" fill="#FFE14D" style="filter: drop-shadow(0 0 8px rgba(255,225,77,.8))"></circle>
+    </svg>
+    <div style="{{peakTip}}">Takt 3 · 64×</div>
+    <div style="{{nowTip}}">hier bist du · 23×</div>
+    <div style="position: absolute; left: 20px; right: 20px; top: 184px; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); font-size: 11.5px; color: rgba(237,237,240,.5)">
+      <sc-for list="{{axis}}" as="a" hint-placeholder-count="8"><span style="{{a.style}}">{{a.label}}</span></sc-for>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px">
+    <sc-for list="{{parts}}" as="p" hint-placeholder-count="8">
+      <a href="Ueben.dc.html" style="{{p.box}}">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span style="font-size: 14px; font-weight: 600">Teil {{p.n}}</span>
+          <span style="{{p.stateStyle}}">{{p.state}}</span>
+        </div>
+        <span style="font-size: 12px; color: rgba(237,237,240,.55)">{{p.bars}}</span>
+      </a>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px">
+    <span style="font-size: 13px; color: rgba(237,237,240,.55); margin-right: 4px">Danach zusammensetzen</span>
+    <sc-for list="{{chain}}" as="c" hint-placeholder-count="5"><span style="{{c.style}}">{{c.label}}</span></sc-for>
+  </div>
+
+  <div style="flex: 1"></div>
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <span style="font-size: 13.5px; color: rgba(237,237,240,.65)">Teil 3 · Takt 9 – 12½ · beste Runde 86 %</span>
+    <a href="Ueben.dc.html" style="display: inline-flex; align-items: center; gap: 10px; height: 54px; padding: 0 28px; border-radius: 999px; background: #FFFFFF; color: #050507; font-size: 15.5px; font-weight: 600; text-decoration: none; box-shadow: 0 0 30px rgba(255,225,77,.25)">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2l9 5-9 5z" fill="currentColor"></path></svg>
+      Weiter mit Teil 3
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const plays = [58,62,64,60, 44,46,48,42, 26,24,23,22, 9,3,3,3, 3,3,3,3, 3,3,3,3, 3,3,3,3, 3,3,3,2];
+    const X0 = 20, X1 = 1196, Y0 = 176, Y1 = 24, max = 70;
+    const xs = plays.map((_, i) => X0 + (i + .5) * (X1 - X0) / 32);
+    const ys = plays.map((v) => Y0 - (v / max) * (Y0 - Y1));
+    let line = `M ${X0} ${ys[0].toFixed(1)}`;
+    for (let i = 0; i < 32; i++) {
+      if (i === 0) { line += ` L ${xs[0].toFixed(1)} ${ys[0].toFixed(1)}`; continue; }
+      const cx = (xs[i - 1] + xs[i]) / 2;
+      line += ` C ${cx.toFixed(1)} ${ys[i - 1].toFixed(1)} ${cx.toFixed(1)} ${ys[i].toFixed(1)} ${xs[i].toFixed(1)} ${ys[i].toFixed(1)}`;
+    }
+    line += ` L ${X1} ${ys[31].toFixed(1)}`;
+    const area = `${line} L ${X1} ${Y0} L ${X0} ${Y0} Z`;
+    const gridLines = []; for (let p = 0; p <= 8; p++) gridLines.push({x: (X0 + p * (X1 - X0) / 8).toFixed(1)});
+    const peakX = xs[2].toFixed(1), peakY = ys[2].toFixed(1), nowX = xs[10].toFixed(1), nowY = ys[10].toFixed(1);
+    const tip = (x, y, gold) => `position:absolute;left:${(x - 50).toFixed(0)}px;top:${(y - 34).toFixed(0)}px;width:100px;text-align:center;font-size:12px;font-weight:600;color:${gold ? '#FFE14D' : '#FFFFFF'};white-space:nowrap;`;
+    const axis = []; for (let p = 1; p <= 8; p++) axis.push({label: `Teil ${p}`, style: `text-align:center;${p === 3 ? 'color:#FFE14D;' : ''}`});
+    const base = 'display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:14px;text-decoration:none;color:#EDEDF0;';
+    const data = [['1','Takt 1–4','sicher','done'],['2','Takt 5–8','sicher','done'],['3','Takt 9–12½','jetzt','now'],['4','Takt 13–16','offen','open'],['5','Takt 17–20','offen','open'],['6','Takt 21–24','offen','open'],['7','Takt 25–28','offen','open'],['8','Takt 29–32','offen','open']];
+    const parts = data.map(([n, bars, state, k]) => ({n, bars, state,
+      stateStyle: `font-size:12px;font-weight:600;color:${k === 'done' ? '#3DB67A' : (k === 'now' ? '#FFE14D' : 'rgba(237,237,240,.4)')};`,
+      box: base + (k === 'now' ? 'background:rgba(255,225,77,.07);animation:kt-pulse 2.4s ease-in-out infinite;' : (k === 'done' ? 'background:rgba(61,182,122,.07);box-shadow:inset 0 0 0 1px rgba(61,182,122,.35);' : 'background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);'))}));
+    const chip = (label, k) => ({label, style: `height:30px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-size:12.5px;font-weight:500;${k === 'done' ? 'background:rgba(61,182,122,.14);color:#3DB67A;' : (k === 'next' ? 'background:rgba(255,225,77,.12);color:#FFE14D;' : 'background:rgba(255,255,255,.05);color:rgba(237,237,240,.55);')}`});
+    const chain = [chip('1 + 2 · sicher', 'done'), chip('1 bis 3', 'next'), chip('1 bis 4', 'open'), chip('5 bis 8', 'open'), chip('ganzer Song', 'open')];
+    return {line, area, gridLines, peakX, peakY, nowX, nowY, peakTip: tip(+peakX, +peakY), nowTip: tip(+nowX, +nowY, true), axis, parts, chain};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Vor dem Spielen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: radial-gradient(ellipse 900px 440px at 12% 108%, rgba(255,77,125,.11), transparent 70%), radial-gradient(ellipse 900px 440px at 88% 108%, rgba(255,225,77,.075), transparent 70%), radial-gradient(ellipse 1300px 520px at 50% -25%, rgba(255,77,125,.045), transparent 70%), #050507">
+
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="Bibliothek.dc.html" style="display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.75); font-size: 13px; text-decoration: none">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>Bibliothek
+    </a>
+    <button style="display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,255,255,.06); color: #FFFFFF; font-size: 13px; font-weight: 500">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"></path></svg>MIDI fürs iPad
+    </button>
+  </div>
+
+  <div style="display: flex; align-items: baseline; gap: 16px">
+    <h1 style="margin: 0; font-size: 42px; font-weight: 600; letter-spacing: -0.03em">Glatteis</h1>
+    <span style="font-size: 14px; color: rgba(237,237,240,.55)">3:12 · 96 BPM · 32 Takte</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <sc-for list="{{variants}}" as="v" hint-placeholder-count="3">
+      <button style="{{v.box}}">
+        <div style="position: relative; height: 110px; border-radius: 12px; overflow: hidden; background: #08080A">
+          <sc-for list="{{v.roll}}" as="r" hint-placeholder-count="20"><div style="{{r}}"></div></sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span style="font-size: 16px; font-weight: 600">{{v.name}}</span>
+          <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">{{v.count}}</span>
+        </div>
+        <span style="font-size: 13px; color: rgba(237,237,240,.6); text-align: left">{{v.desc}}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.04)">
+      <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Hände</span>
+      <div style="display: flex; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.06)">
+        <button style="flex: 1; height: 30px; border: 0; border-radius: 999px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,.16); color: #FFFFFF">Beide</button>
+        <button style="flex: 1; height: 30px; border: 0; border-radius: 999px; font-size: 13px; background: transparent; color: rgba(237,237,240,.65)">Rechts</button>
+        <button style="flex: 1; height: 30px; border: 0; border-radius: 999px; font-size: 13px; background: transparent; color: rgba(237,237,240,.65)">Links</button>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.04)">
+      <div style="display: flex; justify-content: space-between"><span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Tempo</span><span style="font-size: 14px; font-weight: 600">70 %</span></div>
+      <div style="position: relative; height: 30px; display: flex; align-items: center">
+        <div style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.1)"><div style="width: 57%; height: 4px; border-radius: 2px; background: #FFFFFF"></div></div>
+        <div style="position: absolute; left: 57%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 10px rgba(255,255,255,.5)"></div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.04)">
+      <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Wartemodus</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; height: 30px">
+        <span style="font-size: 13.5px">Hält an, bis du triffst</span>
+        <button role="switch" aria-checked="true" aria-label="Wartemodus" style="border: 0; padding: 0; width: 40px; height: 24px; border-radius: 999px; background: #3DB67A; position: relative; display: inline-block"><span style="position: absolute; right: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></button>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.04)">
+      <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Begleitung</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; height: 30px">
+        <span style="font-size: 13.5px">Band leise dazu</span>
+        <button role="switch" aria-checked="true" aria-label="Begleitung" style="border: 0; padding: 0; width: 40px; height: 24px; border-radius: 999px; background: #3DB67A; position: relative; display: inline-block"><span style="position: absolute; right: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; align-items: flex-end; gap: 24px">
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12.5px; color: rgba(237,237,240,.55)">Tastenbereich in dieser Fassung</span>
+      <div style="position: relative; height: 52px; border-radius: 8px; overflow: hidden; background: #0A0A0C">
+        <sc-for list="{{whites}}" as="k" hint-placeholder-count="52"><div style="{{k}}"></div></sc-for>
+        <sc-for list="{{blacks}}" as="k" hint-placeholder-count="36"><div style="{{k}}"></div></sc-for>
+      </div>
+    </div>
+    <a href="Ueben.dc.html" style="display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 30px; border-radius: 999px; background: #FFFFFF; color: #050507; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 0 30px rgba(255,225,77,.25)">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2l9 5-9 5z" fill="currentColor"></path></svg>
+      Spielen ab Takt 9
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+  roll(seed, n, W, H) {
+    let s = seed; const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const right = rnd() < .6; const c = right ? '#FFE14D' : '#FF4D7D';
+      const x = right ? W * (.5 + rnd() * .44) : W * (.06 + rnd() * .38); const w = 6; const h = 8 + rnd() * 26; const y = rnd() * (H - 10) - 4;
+      out.push(`position:absolute;box-sizing:border-box;left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;width:${w}px;height:${h.toFixed(0)}px;border-radius:3px;background:${this.rgba(c,.35)};border:1.5px solid ${c};box-shadow:0 0 6px ${this.rgba(c,.6)};`);
+    }
+    return out;
+  }
+  renderVals() {
+    const base = 'display:flex;flex-direction:column;gap:10px;padding:12px;border:0;border-radius:18px;color:#EDEDF0;font:inherit;text-align:left;';
+    const variants = [
+      {name: 'Leicht', count: '≈ 180 Noten', desc: 'Melodie rechts, Grundton links', roll: this.roll(4, 12, 380, 110), box: base + 'background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);'},
+      {name: 'Mittel', count: '≈ 420 Noten', desc: 'Melodie, links einfache Akkorde', roll: this.roll(8, 26, 380, 110), box: base + 'background:rgba(255,225,77,.06);box-shadow:inset 0 0 0 2px #FFE14D,0 0 24px rgba(255,225,77,.15);'},
+      {name: 'Original', count: '≈ 960 Noten', desc: 'Alles, was erkannt wurde', roll: this.roll(15, 60, 380, 110), box: base + 'background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);'}
+    ];
+    const isW = (m) => [0,2,4,5,7,9,11].indexOf(m % 12) >= 0;
+    const lo = 21, hi = 108, W = 1000, KH = 52;
+    const wh = []; for (let m = lo; m <= hi; m++) if (isW(m)) wh.push(m);
+    const ww = W / wh.length; const pos = {};
+    wh.forEach((m, i) => { pos[m] = {x: i * ww, w: ww, white: true}; });
+    for (let m = lo; m <= hi; m++) if (!isW(m)) { const b = ww * .58; pos[m] = {x: pos[m-1].x + ww - b / 2, w: b, white: false}; }
+    const whites = [], blacks = [];
+    for (let m = lo; m <= hi; m++) {
+      const k = pos[m]; const inL = m >= 36 && m <= 55; const inR = m >= 60 && m <= 84;
+      const tint = inR ? 'rgba(255,225,77,.85)' : (inL ? 'rgba(255,77,125,.8)' : null);
+      if (k.white) whites.push(`position:absolute;left:${(k.x + .5).toFixed(1)}px;top:0;width:${(k.w - 1).toFixed(1)}px;height:${KH}px;border-radius:0 0 3px 3px;background:${tint ? `linear-gradient(180deg,#FFFFFF,${tint})` : 'linear-gradient(180deg,#8E8F97,#B4B5BC)'};opacity:${tint ? 1 : .45};`);
+      else blacks.push(`position:absolute;left:${k.x.toFixed(1)}px;top:0;width:${k.w.toFixed(1)}px;height:${Math.round(KH * .6)}px;border-radius:0 0 2px 2px;background:#101013;`);
+    }
+    return {variants, whites, blacks};
+  }
+}
+</script>
+</body>
+</html>

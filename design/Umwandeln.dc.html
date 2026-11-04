@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Umwandeln</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+a{color:#EDEDF0}a:hover{color:#FFFFFF}
+@keyframes kt-scan{0%,100%{opacity:.6}50%{opacity:1}}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; padding: 28px 32px; display: flex; gap: 32px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #EDEDF0; background: radial-gradient(ellipse 900px 440px at 12% 108%, rgba(255,77,125,.11), transparent 70%), radial-gradient(ellipse 900px 440px at 88% 108%, rgba(255,225,77,.075), transparent 70%), radial-gradient(ellipse 1300px 520px at 50% -25%, rgba(255,77,125,.045), transparent 70%), #050507">
+
+  <div style="width: 440px; flex: none; display: flex; flex-direction: column; gap: 22px">
+    <a href="Bibliothek.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(237,237,240,.75); font-size: 13px; text-decoration: none">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>Bibliothek
+    </a>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <label for="songname" style="font-size: 12.5px; color: rgba(237,237,240,.55)">07_Glatteis.m4a · 3:12</label>
+      <input id="songname" value="Glatteis" style="height: 52px; box-sizing: border-box; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(255,255,255,.06); color: #FFFFFF; font-size: 26px; font-weight: 600; outline: 0">
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+        <div style="{{s.box}}">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="{{s.dot}}">{{s.num}}</span>
+            <span style="flex: 1; font-size: 14.5px; font-weight: 500">{{s.title}}</span>
+            <span style="{{s.stateStyle}}">{{s.state}}</span>
+          </div>
+          <sc-if value="{{s.hasBar}}" hint-placeholder-val="{{false}}">
+            <div style="height: 4px; border-radius: 2px; background: rgba(255,255,255,.08); margin-left: 40px"><div style="width: 64%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #FF4D7D, #FFE14D)"></div></div>
+          </sc-if>
+          <sc-if value="{{s.hasChips}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; gap: 6px; margin-left: 40px">
+              <span style="height: 24px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12px; color: rgba(237,237,240,.7); display: inline-flex; align-items: center">Gesang</span>
+              <span style="height: 24px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12px; color: rgba(237,237,240,.7); display: inline-flex; align-items: center">Schlagzeug</span>
+              <span style="height: 24px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12px; color: rgba(237,237,240,.7); display: inline-flex; align-items: center">Bass</span>
+              <span style="height: 24px; padding: 0 10px; border-radius: 999px; background: rgba(255,225,77,.16); font-size: 12px; color: #FFE14D; display: inline-flex; align-items: center">Rest → Noten</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex: 1"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <span style="font-size: 13px; color: rgba(237,237,240,.55)">noch etwa 1 Minute</span>
+      <a href="Bibliothek.dc.html" style="display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 999px; background: rgba(255,255,255,.08); color: #FFFFFF; font-size: 13.5px; font-weight: 600; text-decoration: none">Im Hintergrund weiter</a>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+    <div style="border-radius: 20px; padding: 18px 20px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{stems}}" as="t" hint-placeholder-count="4">
+        <div style="display: flex; align-items: center; gap: 14px; height: 36px">
+          <span style="{{t.label}}">{{t.name}}</span>
+          <div style="flex: 1; height: 36px; display: flex; align-items: center; gap: 2px">
+            <sc-for list="{{t.bars}}" as="b" hint-placeholder-count="60"><div style="{{b}}"></div></sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="position: relative; flex: 1; border-radius: 20px; overflow: hidden; background: #08080A; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07)">
+      <sc-for list="{{found}}" as="n" hint-placeholder-count="40"><div style="{{n}}"></div></sc-for>
+      <div style="position: absolute; left: 64%; top: 0; bottom: 0; width: 2px; background: #FFFFFF; box-shadow: 0 0 14px rgba(255,255,255,.7); animation: kt-scan 1.6s ease-in-out infinite"></div>
+      <div style="position: absolute; left: 64%; top: 0; bottom: 0; right: 0; background: rgba(5,5,7,.55)"></div>
+      <span style="position: absolute; left: 18px; top: 14px; font-size: 12.5px; color: rgba(237,237,240,.6)">Erkannte Noten · 412</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+  renderVals() {
+    const done = 'width:28px;height:28px;border-radius:50%;background:rgba(61,182,122,.18);color:#3DB67A;font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;';
+    const run = 'width:28px;height:28px;border-radius:50%;background:#FFE14D;color:#050507;font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 0 14px rgba(255,225,77,.5);';
+    const wait = 'width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(237,237,240,.5);font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;';
+    const boxA = 'display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.04);';
+    const boxRun = 'display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,225,77,.35);';
+    const steps = [
+      {num: '1', title: 'Stimmen trennen', state: 'fertig', stateStyle: 'font-size:12.5px;color:#3DB67A', dot: done, box: boxA, hasChips: true, hasBar: false},
+      {num: '2', title: 'Klavier-Noten erkennen', state: '64 %', stateStyle: 'font-size:12.5px;color:#FFE14D;font-weight:600', dot: run, box: boxRun, hasChips: false, hasBar: true},
+      {num: '3', title: 'Takt und Tempo finden', state: 'wartet', stateStyle: 'font-size:12.5px;color:rgba(237,237,240,.45)', dot: wait, box: boxA, hasChips: false, hasBar: false},
+      {num: '4', title: 'Leicht, Mittel, Original bauen', state: 'wartet', stateStyle: 'font-size:12.5px;color:rgba(237,237,240,.45)', dot: wait, box: boxA, hasChips: false, hasBar: false}
+    ];
+    let s = 5; const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const stems = ['Gesang', 'Schlagzeug', 'Bass', 'Rest'].map((name, i) => {
+      const hot = i === 3; const bars = [];
+      for (let j = 0; j < 96; j++) { const h = 4 + Math.abs(Math.sin(j * (.3 + i * .17)) * 22 + rnd() * 10); bars.push(`flex:1;height:${h.toFixed(0)}px;border-radius:1px;background:${hot ? (j % 2 ? 'rgba(255,225,77,.85)' : 'rgba(255,77,125,.85)') : 'rgba(255,255,255,.18)'};`); }
+      return {name, label: `width:84px;font-size:12.5px;flex:none;color:${hot ? '#FFE14D' : 'rgba(237,237,240,.55)'};`, bars};
+    });
+    const found = [];
+    const W = 760, H = 430;
+    for (let i = 0; i < 80; i++) {
+      const right = rnd() < .6; const c = right ? '#FFE14D' : '#FF4D7D';
+      const x = rnd() * W; const w = 18 + rnd() * 50; const y = right ? 40 + rnd() * 180 : 250 + rnd() * 150; const h = 6;
+      found.push(`position:absolute;box-sizing:border-box;left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;width:${w.toFixed(0)}px;height:${h}px;border-radius:3px;background:${this.rgba(c,.45)};border:1px solid ${c};box-shadow:0 0 6px ${this.rgba(c,.6)};`);
+    }
+    return {steps, stems, found};
+  }
+}
+</script>
+</body>
+</html>
