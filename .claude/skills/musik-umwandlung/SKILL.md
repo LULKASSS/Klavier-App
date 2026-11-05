@@ -27,6 +27,8 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Über Wiederholungen abstimmen brachte bei Glatteis nichts: Gleiche Stellen ähneln sich im 32stel-Raster höchstens zu 63 %.
 - Filter asymmetrisch: Kurze Spitzen nach oben sind Melodie und bleiben, kurze Ausschläge nach unten fliegen eher raus. Sonst fehlen die hohen Töne.
 - Im Mix hohe Töne von Obertönen unterscheiden: F♯5 und B5 über gesungenem B3 sind Obertöne. Trotzdem klingt das Original hell, Melodie-Oktaven in der rechten Hand tragen das ins Klavier.
+- Sehr leise „klare“ Stellen der Hauptstimme können nur ein Echo sein (Lautstärke fast null). Fehlt dort ein hoher Ton, steht er meist im Instrumental: Gesangspausen aus der stärksten hohen Frequenz der Instrumental-Spur füllen.
+- Echte Pausen nicht hart abschneiden, sondern den letzten Akkord leise ausklingen lassen. Sonst klingt es abgehackt.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
 ## Muster aus dem Maßstab (Notenbild, 8 Takte)
