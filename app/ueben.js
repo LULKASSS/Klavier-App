@@ -27,11 +27,12 @@ const Midi = {
     for (const h of this.hoerer) h.klavierGeaendert?.();
   },
   anschlag(ton, an, v = 90) { for (const h of this.hoerer) h.taste?.(ton, an, v); },
-  note(ton, an, v = 80) {
-    if (this.aus) { this.aus.send(an ? [0x90, ton, v] : [0x80, ton, 0]); return; }
+  note(ton, an, v = 80, wann) {
+    if (this.aus) { this.aus.send(an ? [0x90, ton, v] : [0x80, ton, 0], wann); return; }
     this.macTon(ton, an, v);
   },
-  pedal(an) { this.aus?.send([0xB0, 64, an ? 127 : 0]); },
+  pedal(an, wann) { this.aus?.send([0xB0, 64, an ? 127 : 0], wann); },
+  kurzname(port) { return /fp-?30|roland|digital piano/i.test(port.name) ? 'FP-30X' : port.name.slice(0, 18); },
   stille() {
     this.aus?.send([0xB0, 64, 0]);
     this.aus?.send([0xB0, 123, 0]);
@@ -63,6 +64,69 @@ const Midi = {
   },
 };
 
+/* Anhören am Klavier: Das Audio-Element läuft stumm als Uhr, die Töne kommen per MIDI aus dem Klavier. */
+const Vorspiel = {
+  ton: null, ev: [], pedale: [], i: 0, uhr: null, null_ms: 0, geaendert: null,
+  amKlavier() { return !!Midi.aus && this.ev.length > 0; },
+  laden(ton, noten, pedal) {
+    this.leeren();
+    this.ton = ton;
+    this.pedale = pedal;
+    for (const [a, e, t, , v = 80] of noten) { this.ev.push({t: a, an: true, ton: t, v}); this.ev.push({t: e, an: false, ton: t}); }
+    for (const [a, e] of pedal) { this.ev.push({t: a, pedal: true}); this.ev.push({t: e, pedal: false}); }
+    // Zur selben Zeit erst loslassen, dann anschlagen, sonst verstummt ein wiederholter Ton
+    this.ev.sort((x, y) => x.t - y.t || (x.an ? 1 : 0) - (y.an ? 1 : 0));
+    Midi.hoerer.add(this);
+    Midi.start().then(() => this.stimmen());
+    this.stimmen();
+  },
+  leeren() {
+    this.stopp();
+    this.ev = []; this.pedale = [];
+    Midi.hoerer.delete(this);
+    if (this.ton) this.ton.muted = false;
+    this.geaendert?.();
+  },
+  klavierGeaendert() { this.stimmen(); },
+  stimmen() {
+    if (!this.ton) return;
+    this.ton.muted = this.amKlavier();
+    if (this.amKlavier() && !this.ton.paused) this.los(); else this.stopp();
+    this.geaendert?.();
+  },
+  los() {
+    if (this.uhr) return;
+    this.anUhr(this.ton.currentTime);
+    this.uhr = setInterval(() => this.schritt(), 20);
+  },
+  stopp() {
+    if (!this.uhr) return;
+    clearInterval(this.uhr);
+    this.uhr = null;
+    Midi.stille();
+  },
+  // Eigene gleichmäßige Uhr, das Audio-Element stellt sie nur nach, wenn gesprungen wurde
+  anUhr(t) {
+    Midi.stille();
+    this.null_ms = performance.now() - t * 1000;
+    // Etwas zurückschauen: Beim Start steht die Uhr schon knapp hinter dem ersten Ton
+    const i = this.ev.findIndex((e) => e.t >= t - .05);
+    this.i = i < 0 ? this.ev.length : i;
+    if (this.pedale.some(([a, e]) => a <= t && t < e)) Midi.pedal(true);
+  },
+  schritt() {
+    const nun = performance.now();
+    if (Math.abs((nun - this.null_ms) / 1000 - this.ton.currentTime) > .15) this.anUhr(this.ton.currentTime);
+    const bis = (nun - this.null_ms) / 1000 + .1;
+    while (this.i < this.ev.length && this.ev[this.i].t <= bis) {
+      const e = this.ev[this.i++];
+      const wann = Math.max(nun, this.null_ms + e.t * 1000);
+      if (e.pedal !== undefined) Midi.pedal(e.pedal, wann);
+      else Midi.note(e.ton, e.an, e.v, wann);
+    }
+  },
+};
+
 const UEBEN_ICON = {
   zurueck: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>',
   spiel: '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2l9 5-9 5z" fill="currentColor"/></svg>',
@@ -73,20 +137,72 @@ const GNADE_S = .25;      // ohne Warten: so lange danach zählt er noch
 const VORLAUF_S = 2.5;    // vor dem ersten Ton
 const STUFEN = [30, 40, 50, 60, 70, 80, 90, 100];
 
+/* ---------- Notenschrift ---------- */
+const BUCHSTABEN = [0, 2, 4, 5, 7, 9, 11];
+const KREUZ_FOLGE = [3, 0, 4, 1, 5, 2, 6];  // F C G D A E H als Stufen
+const B_FOLGE = [6, 2, 5, 1, 4, 0, 3];      // H E A D G C F
+// Übliche Lage der Vorzeichen im Violinschlüssel (Stufe = Oktave*7+Buchstabe, C4 = 35), im Bassschlüssel zwei Oktaven tiefer
+const KREUZ_LAGE = [45, 42, 46, 43, 40, 44, 41];
+const B_LAGE = [41, 44, 40, 43, 39, 42, 38];
+const ZEICHEN_VERSATZ = {'♯': 2.5, '♭': 3, '♮': 2.5};  // Grundlinie unter der Mitte des Zeichens
+const DUR_PROFIL = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+const MOLL_PROFIL = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+const VORZEICHEN_DUR = {0: 0, 7: 1, 2: 2, 9: 3, 4: 4, 11: 5, 6: 6, 5: -1, 10: -2, 3: -3, 8: -4, 1: -5};
+
+/** Tonart aus den Noten: Rückgabe Anzahl Vorzeichen, positiv Kreuze, negativ Bs. */
+function tonartAus(noten) {
+  const h = new Array(12).fill(0);
+  for (const [a, e, ton] of noten) h[ton % 12] += Math.min(e - a, 2);
+  const korr = (p, w) => {
+    const r = h.map((_, i) => p[(i - w + 12) % 12]);
+    const mx = h.reduce((x, y) => x + y) / 12, my = r.reduce((x, y) => x + y) / 12;
+    let z = 0, a2 = 0, b2 = 0;
+    for (let i = 0; i < 12; i++) { z += (h[i] - mx) * (r[i] - my); a2 += (h[i] - mx) ** 2; b2 += (r[i] - my) ** 2; }
+    return z / Math.sqrt(a2 * b2 || 1);
+  };
+  let best = -2, dur = 0;
+  for (let w = 0; w < 12; w++) {
+    const d = korr(DUR_PROFIL, w), m = korr(MOLL_PROFIL, w);
+    if (d > best) { best = d; dur = w; }
+    if (m > best) { best = m; dur = (w + 3) % 12; }
+  }
+  return VORZEICHEN_DUR[dur];
+}
+
+/** Wie ein Ton in dieser Tonart geschrieben wird: Stufe (Oktave*7+Buchstabe) und Versetzungszeichen. */
+function schreibweise(ton, vorz) {
+  const verschiebung = new Array(7).fill(0);
+  for (let i = 0; i < Math.abs(vorz); i++) verschiebung[(vorz > 0 ? KREUZ_FOLGE : B_FOLGE)[i]] = Math.sign(vorz);
+  const okt = Math.floor(ton / 12), pc = ton % 12;
+  for (let b = 0; b < 7; b++) {
+    if ((BUCHSTABEN[b] + verschiebung[b] + 12) % 12 === pc) {
+      const o = BUCHSTABEN[b] + verschiebung[b] < 0 ? okt + 1 : BUCHSTABEN[b] + verschiebung[b] >= 12 ? okt - 1 : okt;
+      return {stufe: o * 7 + b, zeichen: ''};
+    }
+  }
+  const nat = BUCHSTABEN.indexOf(pc);
+  if (nat >= 0) return {stufe: okt * 7 + nat, zeichen: '♮'};
+  const b = BUCHSTABEN.indexOf(vorz < 0 ? pc + 1 : pc - 1);
+  return {stufe: okt * 7 + b, zeichen: vorz < 0 ? '♭' : '♯'};
+}
+
 class Uebung {
   constructor(wurzel, song, fassung, noten, pedal, fortschritt, wechseln, zurueck) {
     Object.assign(this, {wurzel, song, fassung, pedal, wechseln, zurueck});
-    this.noten = noten.map(([a, e, ton, hand], i) => ({a, e, ton, hand, i})).sort((x, y) => x.a - y.a || x.ton - y.ton);
+    this.noten = noten.map(([a, e, ton, hand, v], i) => ({a, e, ton, hand, v, i})).sort((x, y) => x.a - y.a || x.ton - y.ton);
     this.takt_s = song.takt_s || 240 / (song.bpm || 120);
     this.takt_ab = song.takt_ab || 0;
     this.ende = this.noten.length ? Math.max(...this.noten.map((n) => n.e)) : 0;
     this.taktzahl = Math.max(1, Math.ceil((this.ende - this.takt_ab) / this.takt_s));
     this.sicher = new Set(fortschritt?.[fassung]?.sicher || []);
     this.fortschritt = fortschritt || {};
-    this.haende = 'beide'; this.tempo = 100; this.warten = true;
+    try { this.haende = localStorage.getItem('klavier-haende') || 'beide'; } catch { this.haende = 'beide'; }
+    this.tempo = 100; this.warten = true;
     this.schleife = null; this.laeuft = false; this.t = 0; this.gedrueckt = new Map(); this.falsch = new Map();
     this.funken = []; this.klingt = new Map(); this.werte = {}; this.fertig = false;
     this.lage = this.tastenLage();
+    this.vorz = song.vorzeichen ?? tonartAus(noten);
+    try { this.blatt = localStorage.getItem('klavier-noten') === '1'; } catch { this.blatt = false; }
     this.bauen();
     this.t = Math.max(0, (this.noten[0]?.a ?? 0) - VORLAUF_S);
     this.neuPlanen();
@@ -123,7 +239,7 @@ class Uebung {
   mitKlavier() { return !!Midi.ein; }
 
   neuPlanen() {
-    // Ohne Klavier gibt es nichts zu drücken: Die App spielt alles selbst
+    // Ohne Klavier gibt es nichts zu drücken: Man hört die gewählte Hand. Mit Klavier spielt man sie selbst, die andere kommt von der App.
     const zuSpielen = this.noten.filter((n) => this.mitKlavier() && this.aktiv(n));
     this.gruppen = [];
     for (const n of zuSpielen) {
@@ -132,7 +248,7 @@ class Uebung {
     }
     this.selbst = [];
     for (const n of this.noten) {
-      if (!this.mitKlavier() || !this.aktiv(n)) {
+      if (this.mitKlavier() !== this.aktiv(n)) {
         this.selbst.push({t: n.a, an: 1, n});
         this.selbst.push({t: n.e, an: 0, n});
       }
@@ -230,7 +346,12 @@ class Uebung {
     // Was die App selbst spielt
     while (this.ei < this.selbst.length && this.selbst[this.ei].t <= t) {
       const e = this.selbst[this.ei++];
-      if (e.an === 1) { Midi.note(e.n.ton, true, 72); this.klingt.set(e.n.ton, e.n.hand); }
+      if (e.an === 1) {
+        // Die andere Hand etwas leiser, damit man sich selbst hört
+        const v = e.n.v ?? 72;
+        Midi.note(e.n.ton, true, this.mitKlavier() ? Math.max(40, Math.round(v * .8)) : v);
+        this.klingt.set(e.n.ton, e.n.hand);
+      }
       else if (e.an === 0) { Midi.note(e.n.ton, false); this.klingt.delete(e.n.ton); }
       else Midi.pedal(e.an === 2);
     }
@@ -285,11 +406,12 @@ class Uebung {
         <div class="ue-knoepfe">
           <span class="ue-klavier" id="ue-klavier"></span>
           <div class="ue-wahl" role="group" aria-label="Hände">
-            <button data-haende="beide" aria-pressed="true">Beide</button><button data-haende="r" aria-pressed="false">R</button><button data-haende="l" aria-pressed="false">L</button>
+            ${[['beide', 'Beide'], ['r', 'Rechts'], ['l', 'Links']].map(([k, t]) => `<button data-haende="${k}" aria-pressed="${this.haende === k}">${t}</button>`).join('')}
           </div>
           <div class="ue-tempo" role="group" aria-label="Tempo"><button data-tempo="-1" aria-label="Langsamer">−</button><span id="ue-tempo">100 %</span><button data-tempo="1" aria-label="Schneller">+</button></div>
           <button class="ue-pille" id="ue-warten" aria-pressed="true">Warten</button>
           <button class="ue-pille" id="ue-schleife" aria-pressed="false">Schleife</button>
+          <button class="ue-pille" id="ue-noten" aria-pressed="false">Noten</button>
           ${f.length > 1 ? `<button class="ue-pille an" id="ue-fassung">${name[this.fassung]}</button>` : ''}
           <button class="ue-spiel" id="ue-spiel" aria-label="Abspielen">${UEBEN_ICON.spiel}</button>
         </div>
@@ -336,11 +458,19 @@ class Uebung {
       this.wechseln(this.fassungen[(this.fassungen.indexOf(this.fassung) + 1) % this.fassungen.length]);
       return;
     }
+    if (t.id === 'ue-noten') { this.notenUmschalten(); return; }
     if (t.id === 'ue-spiel') this.umschalten();
+  }
+
+  notenUmschalten() {
+    this.blatt = !this.blatt;
+    try { localStorage.setItem('klavier-noten', this.blatt ? '1' : '0'); } catch { /* nur eine Bequemlichkeit */ }
+    this.anzeigen();
   }
 
   haendeSetzen(h) {
     this.haende = h;
+    try { localStorage.setItem('klavier-haende', h); } catch { /* nur eine Bequemlichkeit */ }
     for (const b of this.wurzel.querySelectorAll('[data-haende]')) b.setAttribute('aria-pressed', b.dataset.haende === h);
     this.neuPlanen();
   }
@@ -355,6 +485,10 @@ class Uebung {
     if (e.target.matches?.('input')) return;
     if (e.key === ' ') { e.preventDefault(); this.umschalten(); }
     else if (e.key === 'Escape') this.zurueck();
+    else if (e.key === 'n' || e.key === 'N') this.notenUmschalten();
+    else if (e.key === 'r' || e.key === 'R') this.haendeSetzen('r');
+    else if (e.key === 'l' || e.key === 'L') this.haendeSetzen('l');
+    else if (e.key === 'b' || e.key === 'B') this.haendeSetzen('beide');
     else if (e.key === 'ArrowUp') { e.preventDefault(); this.tempoStufe(1); }
     else if (e.key === 'ArrowDown') { e.preventDefault(); this.tempoStufe(-1); }
     else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
@@ -402,6 +536,7 @@ class Uebung {
     $('#ue-warten', w).setAttribute('aria-pressed', this.warten);
     $('#ue-warten', w).hidden = !this.mitKlavier();
     $('#ue-schleife', w).setAttribute('aria-pressed', !!this.schleife);
+    $('#ue-noten', w).setAttribute('aria-pressed', this.blatt);
     const s = $('#ue-spiel', w);
     s.innerHTML = this.laeuft ? UEBEN_ICON.pause : UEBEN_ICON.spiel;
     s.setAttribute('aria-label', this.laeuft ? 'Pause' : 'Abspielen');
@@ -412,8 +547,7 @@ class Uebung {
   klavierGeaendert() {
     const k = $('#ue-klavier', this.wurzel);
     if (!k) return;
-    const name = Midi.ein ? (/fp-?30|roland|digital piano/i.test(Midi.ein.name) ? 'FP-30X' : Midi.ein.name.slice(0, 18)) : 'Kein Klavier';
-    k.textContent = name;
+    k.textContent = Midi.ein ? Midi.kurzname(Midi.ein) : 'Kein Klavier';
     k.classList.toggle('da', !!Midi.ein);
     this.neuPlanen();
   }
@@ -464,25 +598,27 @@ class Uebung {
     const linie = H - hoeheT;
     const tb = W / 52;
     const v = linie / 4;
+    const PANEL_OBEN = 60, PANEL_H = 258;
+    const oben_ = this.blatt ? PANEL_OBEN + PANEL_H : 0;
     for (const n of Object.values(this.lage)) {
       n.x = n.weiss ? n.i * tb : n.i * tb - tb * .29;
       n.w = n.weiss ? tb : tb * .58;
       n.mitte = n.x + n.w / 2;
     }
     c.save();
-    c.beginPath(); c.rect(0, 0, W, linie); c.clip();
+    c.beginPath(); c.rect(0, oben_, W, linie - oben_); c.clip();
     // Taktlinien
     c.strokeStyle = 'rgba(255,255,255,.05)'; c.lineWidth = 1;
     for (let k = Math.max(0, this.takt(t)); k <= this.takt(t) + 3; k++) {
       const y = linie - (this.takt_ab + k * this.takt_s - t) * v;
-      if (y > 0 && y < linie) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+      if (y > oben_ && y < linie) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
     }
     // Noten
     const sollTasten = new Set();
     for (const n of this.noten) {
       const unten = linie - (n.a - t) * v;
       const oben = linie - (n.e - t) * v;
-      if (unten < 0) break;
+      if (unten < oben_) break;
       if (oben > linie) continue;
       const k = this.lage[n.ton];
       if (!k) continue;
@@ -557,6 +693,87 @@ class Uebung {
       if (sollTasten.has(n) && !f) this.markieren(c, k.mitte, linie + hoeheT * .6 - 12, puls, n);
     }
     for (const [n, z] of this.falsch) if (jetzt - z > 180) this.falsch.delete(n);
+    if (this.blatt) this.notenblatt(c, W, PANEL_OBEN, PANEL_H);
+  }
+
+  /** Zwei Zeilen zu je vier Takten: aktuelle hell, nächste verblasst. */
+  notenblatt(c, W, oben, hoehe) {
+    const JE_ZEILE = 4;
+    const zeile = Math.max(0, Math.floor(Math.max(0, this.takt(this.t)) / JE_ZEILE));
+    c.fillStyle = 'rgba(8,8,10,.94)';
+    c.fillRect(0, oben, W, hoehe);
+    c.fillStyle = 'rgba(255,255,255,.07)';
+    c.fillRect(0, oben + hoehe - 1, W, 1);
+    const halb = 3.5;
+    const links = Math.min(96, W * .06), rechts_ = W - 24;
+    const breite_kopf = links + 56 + Math.abs(this.vorz) * 8;
+    const dauer = JE_ZEILE * this.takt_s;
+    const xVon = (t, start) => breite_kopf + (t - start) / dauer * (rechts_ - breite_kopf - 8);
+    for (let si = 0; si < 2; si++) {
+      const start = this.takt_ab + (zeile + si) * JE_ZEILE * this.takt_s;
+      const top = oben + (si ? 126 : 6);
+      const T0 = top + 42, B0 = top + 92;
+      c.globalAlpha = si ? .38 : 1;
+      c.strokeStyle = 'rgba(255,255,255,.26)'; c.lineWidth = 1;
+      c.beginPath();
+      for (const y0 of [T0, B0]) for (let i = 0; i < 5; i++) { c.moveTo(links, y0 - i * 7 + .5); c.lineTo(rechts_, y0 - i * 7 + .5); }
+      for (let k = 0; k <= JE_ZEILE; k++) { const x = xVon(start + k * this.takt_s, start) - (k === JE_ZEILE ? 0 : 8) + .5; c.moveTo(x, T0 - 28); c.lineTo(x, B0); }
+      c.moveTo(links + .5, T0 - 28); c.lineTo(links + .5, B0);
+      c.stroke();
+      c.fillStyle = 'rgba(255,255,255,.8)';
+      c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+      c.font = "36px 'Noto Music',serif"; c.fillText('𝄞', links + 8, T0 - 4);
+      c.font = "24px 'Noto Music',serif"; c.fillText('𝄢', links + 10, B0 - 5);
+      // Vorzeichen
+      const lage = this.vorz > 0 ? KREUZ_LAGE : B_LAGE;
+      const zei = this.vorz > 0 ? '♯' : '♭';
+      c.font = "16px 'Noto Music',serif";
+      c.textAlign = 'center';
+      for (let i = 0; i < Math.abs(this.vorz); i++) {
+        const x = links + 44 + i * 8;
+        c.fillText(zei, x, T0 - (lage[i] - 37) * halb + ZEICHEN_VERSATZ[zei]);
+        c.fillText(zei, x, B0 - (lage[i] - 14 - 25) * halb + ZEICHEN_VERSATZ[zei]);
+      }
+      c.font = '12px Geist,system-ui,sans-serif'; c.textAlign = 'right';
+      c.fillStyle = 'rgba(237,237,240,.55)';
+      c.fillText(String((zeile + si) * JE_ZEILE + 1), links - 8, T0 - 22);
+      // Noten
+      for (const n of this.noten) {
+        if (n.a < start - .01) continue;
+        if (n.a >= start + dauer - .01) break;
+        const {stufe, zeichen} = schreibweise(n.ton, this.vorz);
+        const y = n.hand ? T0 - (stufe - 37) * halb : B0 - (stufe - 25) * halb;
+        const x = xVon(n.a, start);
+        const dabei = this.aktiv(n);
+        const f = n.hand ? '#FFE14D' : '#FF4D7D';
+        // Hilfslinien
+        c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 1;
+        c.beginPath();
+        const unterst = n.hand ? T0 : B0, oberst = unterst - 28;
+        for (let yy = unterst + 7; yy <= y + .1; yy += 7) { c.moveTo(x - 8, yy + .5); c.lineTo(x + 8, yy + .5); }
+        for (let yy = oberst - 7; yy >= y - .1; yy -= 7) { c.moveTo(x - 8, yy + .5); c.lineTo(x + 8, yy + .5); }
+        c.stroke();
+        const vorbei = !si && n.e <= this.t;
+        c.globalAlpha = (si ? .38 : 1) * (vorbei ? .35 : 1) * (dabei ? 1 : .45);
+        c.fillStyle = f;
+        if (!si && !vorbei) { c.shadowColor = f; c.shadowBlur = 6; }
+        c.beginPath(); c.ellipse(x, y, 5, 3.5, -.35, 0, 7); c.fill();
+        c.shadowBlur = 0;
+        if (zeichen) {
+          c.font = "12px 'Noto Music',serif"; c.textAlign = 'center';
+          c.fillText(zeichen, x - 11, y + ZEICHEN_VERSATZ[zeichen]);
+        }
+        c.globalAlpha = si ? .38 : 1;
+      }
+      c.globalAlpha = 1;
+    }
+    // Abspielkopf
+    const start = this.takt_ab + zeile * JE_ZEILE * this.takt_s;
+    if (this.t >= start) {
+      c.fillStyle = '#fff'; c.shadowColor = 'rgba(255,255,255,.6)'; c.shadowBlur = 10;
+      c.fillRect(xVon(this.t, start) - 1, oben + 18, 2, 84);
+      c.shadowBlur = 0;
+    }
   }
 
   markieren(c, x, y, puls, ton) {
@@ -569,4 +786,6 @@ class Uebung {
 }
 
 window.Uebung = Uebung;
+window.tonartAus = tonartAus;
+window.schreibweise = schreibweise;
 window.Midi = Midi;

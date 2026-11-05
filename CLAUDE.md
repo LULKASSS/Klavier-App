@@ -10,11 +10,14 @@
   - Zuhause: einladend, klar gegliedert. Menü oben mittig (Zuhause, Songs, Hinzufügen, Einstellungen), Serie und Stufe als kleine Pillen oben rechts, großer Bereich „Weiter, wo du warst“ mit fallenden Leuchtnoten, darunter drei ruhige Karten (gespielte Takte klein über 14 Tage, zuletzt geübte Songs, nächstes Ziel).
   - Fallende Noten kommen von außerhalb ins Bild, die Taste leuchtet beim Treffer (Start, 05.11.2026 gebaut; im Entwurf warten sie sichtbar oben und springen los).
   - Design der Entwürfe „ganz gut“ (Lukas, 04.11.2026), das Menü-Band oben bleibt aber auf jedem Bildschirm stehen, auch bei Songs (im Entwurf fehlt es dort).
+- Klang (Lukas, 05.11.2026): Die Fassungen sollen wie sein Klavier klingen, nicht wie der Mac-Klang.
+- Hände (05.11.2026): Lukas kam mit R/L nicht weiter. Der Knopf reagierte in der echten App, was genau hakte, ist offen. Jetzt „Rechts“/„Links“, ohne Klavier hört man nur die gewählte Hand, mit Klavier spielt die App die andere leiser, die Wahl bleibt gemerkt.
 - Nicht gewollt: Umwandler als eigenes Werkzeug neben der App, Terminal-Befehle für Lukas, Tasten-Animationen, die ruckelig anfangen (Lukas, 04.11.2026, am Entwurf), Web-App auf dem iPad (Safari kann kein Web MIDI), YouTube-Download, überladenes Dashboard mit großen Kacheln und Abzeichen-Leiste, fast leere Seite.
 
 ## Stand
 Mac-App mit Bibliothek, Umwandlung und Üben (05.11.2026). Nur Klavier: Erkennung mit dem Klaviermodell. Cover aus der Band: Regeln im Skill `musik-umwandlung`, Bau in `umwandler/cover.py`. Fertige MIDIs lassen sich direkt importieren. Üben: fallende Noten, Klavier per Web MIDI, Wartemodus, Hände einzeln, Tempo 30–100 %, Schleife durch Ziehen über die Takt-Leiste, Fortschritt je Takt.
-**Ungeprüft:** am echten FP-30X (Test nur mit simuliertem Klavier), ob es per USB empfangene Noten über seinen Klang ausgibt. **Fehlt noch:** Notenblatt, Zuhause, Einstellungen, Übungsplan, Klavier-verbinden-Bildschirm, Band leise mitlaufen, Schleifen-Ende auf den letzten vollen Ton, Trennpunkt verschieben.
+Notenblatt zuschaltbar (Knopf „Noten“): zwei Zeilen zu 4 Takten mit Tonart, nur Notenköpfe ohne Hälse und Balken. Klang: Sobald ein Klavier da ist, kommt „Anhören“ der Fassung per MIDI aus dem Klavier statt aus der Datei, mit der Anschlagstärke aus dem Song (Song-Seite zeigt FP-30X oder Mac-Klang). Am Klavier noch ungeprüft.
+**Üben am FP-30X von Lukas bestätigt (05.11.2026).** **Fehlt noch:** Zuhause, Einstellungen, Übungsplan, Klavier-verbinden-Bildschirm, Band leise mitlaufen, Schleifen-Ende auf den letzten vollen Ton, Trennpunkt verschieben.
 
 Umwandlung (Stand Glatteis und Gutmensch, nur nach Lukas' Ohr und 8 Takten Notenbild geprüft): An den Gesangstakten klingt der richtige Ton 83 % der Zeit, links 92 % Treffer. Lukas: Beat gut, Stimme noch nicht 100 %, oft passt Ansatz und Länge eines Tons nicht ganz; Gutmensch 0:28–0:32 perfekt. Kürzeres Binden und freieres Raster waren messbar schlechter. Logik kann später weiter besser werden; „Neu umwandeln“ nutzt die Spuren erneut (Sekunden statt Minuten, erstes Umwandeln hochgerechnet rund 4,5-mal so lang wie der Song). Der Maßstab liegt lokal in `testlauf/vergleich/`, Versuche unversioniert in `.cover/`.
 
@@ -23,7 +26,7 @@ Reihenfolge laut Auftrag:
 2. Umwandler ohne Oberfläche testen (erledigt)
 3. Plan und Testergebnisse gezeigt (erledigt)
 4. Übungsansicht mit MIDI-Eingang und Wartemodus (gebaut, am Klavier ungeprüft)
-5. Bibliothek, Vereinfachen, Schleife, Export gebaut; Notenblatt offen
+5. Bibliothek, Vereinfachen, Schleife, Export, Notenblatt gebaut
 6. `ui-pruefung`, Tests grün, Zielkarte nachziehen
 
 ## Aufbau
@@ -42,7 +45,7 @@ Reihenfolge laut Auftrag:
 
 ## Rahmen
 - Eine Mac-App, kein getrenntes Werkzeug (Lukas, 05.11.2026). Electron statt Chrome: bringt Web MIDI mit. Läuft lokal, der Dienst ist nur von diesem Mac erreichbar.
-- Klavier per USB am Mac (Bluetooth-MIDI als Alternative). Der Ton läuft als MIDI über den Klang des Klaviers in den Kopfhörer (Annahme: das FP-30X gibt per USB empfangene Noten über seinen Klang aus, noch ungeprüft).
+- Klavier per USB am Mac (Bluetooth-MIDI als Alternative). Der Ton läuft als MIDI über den Klang des Klaviers in den Kopfhörer (am FP-30X bestätigt).
 - Look: Leuchtstil, nur dunkel, Farben je Hand einstellbar. Bewusst anders als der helle `app-ui`-Look; Bauweise und Bedienung (Geist, Pillen, Tab/Enter, kein Titelbalken oben links) bleiben nach `app-ui`.
 
 ## Regeln

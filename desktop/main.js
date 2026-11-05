@@ -22,9 +22,9 @@ function hinweisSeite(text) {
 
 function fensterOeffnen() {
   fenster = new BrowserWindow({
-    width: 1280, height: 860, minWidth: 900, minHeight: 620, backgroundColor: HINTERGRUND,
+    width: 1280, height: 860, minWidth: 1040, minHeight: 620, backgroundColor: HINTERGRUND,
     titleBarStyle: 'hiddenInset', show: false,
-    webPreferences: { contextIsolation: true, sandbox: true },
+    webPreferences: { contextIsolation: true, sandbox: true, backgroundThrottling: false }, // das Klavier spielt auch weiter, wenn das Fenster im Hintergrund ist
   });
   fenster.once('ready-to-show', () => fenster.show());
   fenster.on('closed', () => { fenster = null; });

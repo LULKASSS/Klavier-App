@@ -789,4 +789,5 @@ def baue_cover(sp: Spuren):
         'leicht': {'rechts': stimme + lange_, 'links': in_zeit(bass_lang)},
         'pedal': PEDAL, 'viertel_s': float(TAKT_S / 4), 'bpm': float(60 / (TAKT_S / 4)), 'takte': len(takte),
         'takt_ab': float(takte[0]), 'takt_s': float(TAKT_S),
+        'vorzeichen': {0: 0, 7: 1, 2: 2, 9: 3, 4: 4, 11: 5, 6: 6, 5: -1, 10: -2, 3: -3, 8: -4, 1: -5}[kt if ka == 'dur' else (kt + 3) % 12],
     }

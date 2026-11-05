@@ -52,7 +52,7 @@ def fertige_midi(ordner, meta):
     else:
         noten = [(n.start, n.end, n.pitch, n.velocity, 1 if n.pitch >= auf.TRENNPUNKT else 0) for i in spuren for n in i.notes]
     noten.sort()
-    (ordner / "original.json").write_text(json.dumps([[round(a, 3), round(e, 3), t, h] for a, e, t, _, h in noten]))
+    (ordner / "original.json").write_text(json.dumps([[round(a, 3), round(e, 3), t, h, v] for a, e, t, v, h in noten]))
     (ordner / "original.mid").write_bytes((ordner / meta["datei"]).read_bytes())
     pedal, an = [], None
     for i in spuren[:1] if len(spuren) == 1 else spuren:
@@ -84,10 +84,10 @@ def cover_aus_band(ordner, meta):
         rechts, links = e[key]["rechts"], e[key]["links"]
         schreibe_midi(ordner / f"{key}.mid", e["viertel_s"], e["pedal"], rechts, links, f'{meta["name"]} {FASSUNGEN[key]}')
         (ordner / f"{key}.json").write_text(json.dumps(
-            sorted([[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1] for n in rechts] + [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 0] for n in links])))
+            sorted([[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1, n["anschlag"]] for n in rechts] + [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 0, n["anschlag"]] for n in links])))
         hoerprobe(sorted(rechts + links, key=lambda n: n["start"]), ordner / key, e["pedal"])
     (ordner / "pedal.json").write_text(json.dumps([[round(a, 3), round(b, 3)] for a, b in e["pedal"]]))
-    melde(bpm=round(e["bpm"]), takte=e["takte"], takt_ab=e["takt_ab"], takt_s=e["takt_s"], notenzahl={k: len(e[k]["rechts"]) + len(e[k]["links"]) for k in FASSUNGEN})
+    melde(bpm=round(e["bpm"]), takte=e["takte"], takt_ab=e["takt_ab"], takt_s=e["takt_s"], vorzeichen=e["vorzeichen"], notenzahl={k: len(e[k]["rechts"]) + len(e[k]["links"]) for k in FASSUNGEN})
 
 
 def umwandeln(ordner):
@@ -124,7 +124,7 @@ def umwandeln(ordner):
         fas.schreibe_midi(inhalt, raster, ordner / f"{key}.mid", f'{meta["name"]} {key.capitalize()}')
         zeit = raster.in_zeit(inhalt)
         (ordner / f"{key}.json").write_text(json.dumps(
-            [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1 if n["hand"] == "rechts" else 0] for n in zeit]))
+            [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1 if n["hand"] == "rechts" else 0, n["anschlag"]] for n in zeit]))
         hoerprobe(zeit, ordner / key)
     takte = (max(n["schritt"] for n in quant) - raster.erster_takt % 4 * 4) // 16 + 1
     (ordner / "pedal.json").write_text("[]")
