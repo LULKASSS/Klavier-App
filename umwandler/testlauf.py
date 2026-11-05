@@ -16,11 +16,11 @@ import soundfile as sf
 from . import aufbereiten as auf
 from . import erkennen as erk
 from . import fassungen as fas
+from .hoerprobe import hoerprobe
 
 WURZEL = Path(__file__).parent.parent
 AUFNAHMEN = WURZEL / "testlauf" / "aufnahmen"
 ERGEBNIS = WURZEL / "testlauf" / "ergebnis"
-RENDERN = WURZEL / "test" / "rendern.swift"
 
 
 def _arrays(noten):
@@ -72,26 +72,12 @@ def schritt_wertung(quant, ref_noten, est_noten, paare, raster, ref):
     return {"stelle_im_takt": takt_ok / max(1, gesamt), "stelle_im_viertel": viertel_ok / max(1, gesamt), "hand_richtig": hand_ok / max(1, gesamt)}
 
 
-def schritt_zu_sek(raster, schritt):
-    i = np.arange(len(raster.schlaege)) * auf.SCHRITTE_JE_VIERTEL
-    d = np.median(np.diff(raster.schlaege)) / auf.SCHRITTE_JE_VIERTEL
-    if schritt > i[-1]:
-        return raster.schlaege[-1] + (schritt - i[-1]) * d
-    if schritt < 0:
-        return raster.schlaege[0] + schritt * d
-    return float(np.interp(schritt, i, raster.schlaege))
-
-
-def in_zeit(noten, raster):
-    return [{**n, "start": max(0.0, schritt_zu_sek(raster, n["schritt"])), "ende": max(0.01, schritt_zu_sek(raster, n["schritt"] + n["laenge"]))} for n in noten]
-
-
 def fassung_wertung(quant, raster, ref):
-    mel = in_zeit(fas.melodie(quant), raster)
+    mel = raster.in_zeit(fas.melodie(quant))
     r_mel = [{**m, "hand": "rechts"} for m in ref["melodie"]]
     mw, _ = noten_wertung(r_mel, mel, toleranz=0.1)
     ak = fas.akkorde(quant, raster)
-    zeit = [(schritt_zu_sek(raster, a["schritt"]), schritt_zu_sek(raster, a["schritt"] + a["laenge"]), a) for a in ak]
+    zeit = [(raster.sekunde(a["schritt"]), raster.sekunde(a["schritt"] + a["laenge"]), a) for a in ak]
     wurzel = art = n = 0
     for soll in ref["akkorde"]:
         for anteil in (0.25, 0.75):
@@ -140,25 +126,12 @@ def gesang_wertung(name, stimmen, sr, ref):
     return {k: w[k] for k in ("genauigkeit", "vollstaendigkeit", "f1", "gefunden", "soll")}
 
 
-def hoerprobe(noten, raster, ziel):
-    z = in_zeit(noten, raster)
-    j = ziel.with_suffix(".noten.json")
-    j.write_text(json.dumps({"dauer": max(n["ende"] for n in z), "spuren": [{
-        "programm": 0, "schlagzeug": False, "gain": 1.0,
-        "noten": [[max(0, n["start"]), n["ende"], n["ton"], n["anschlag"]] for n in z]}]}))
-    wav = ziel.with_suffix(".wav")
-    subprocess.run(["swift", str(RENDERN), str(j), str(wav)], check=True)
-    subprocess.run(["afconvert", "-f", "m4af", "-d", "aac", str(wav), str(ziel.with_suffix(".m4a"))], check=True)
-    wav.unlink()
-    j.unlink()
-
-
 def ausgeben(name, noten, raster, ordner):
     ordner.mkdir(parents=True, exist_ok=True)
     fassungen = {"original": noten, "mittel": fas.fassung_mittel(noten, raster), "leicht": fas.fassung_leicht(noten, raster)}
     for fassung, inhalt in fassungen.items():
         fas.schreibe_midi(inhalt, raster, ordner / f"{name} – {fassung}.mid", f"{name} {fassung}")
-        hoerprobe(inhalt, raster, ordner / f"{name} – {fassung}")
+        hoerprobe(raster.in_zeit(inhalt), ordner / f"{name} – {fassung}")
     return {k: len(v) for k, v in fassungen.items()}
 
 
@@ -184,7 +157,7 @@ def stueck(name, varianten):
         wertung, paare = noten_wertung(ref["noten"], est)
         raster = auf.schaetze_raster(est)
         quant = auf.quantisiere(est, raster)
-        q_noten, _ = noten_wertung(ref["noten"], in_zeit(quant, raster), toleranz=0.1)
+        q_noten, _ = noten_wertung(ref["noten"], raster.in_zeit(quant), toleranz=0.1)
         ergebnis = {
             "noten": wertung, "noten_nach_einrasten": {k: q_noten[k] for k in ("genauigkeit", "vollstaendigkeit", "f1")},
             "raster": raster_wertung(raster, ref), "einrasten": schritt_wertung(quant, ref["noten"], est, paare, raster, ref),

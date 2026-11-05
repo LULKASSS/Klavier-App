@@ -164,7 +164,7 @@ def hall(x, sr, nachhall, anteil):
 def rendern(spuren, dauer, ziel, arbeitsordner):
     j = arbeitsordner / (ziel.stem + ".noten.json")
     j.write_text(json.dumps({"dauer": dauer, "spuren": spuren}))
-    subprocess.run(["swift", str(HIER / "rendern.swift"), str(j), str(ziel)], check=True)
+    subprocess.run(["swift", str(HIER.parent / "umwandler" / "rendern.swift"), str(j), str(ziel)], check=True)
 
 
 def bauen(name, st, rnd, ziel, frei=False, band=False, nachhall=.3, anteil=.1, rauschen=0.0):

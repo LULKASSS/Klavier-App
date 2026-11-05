@@ -29,3 +29,7 @@ dist/
 test-results/
 playwright-report/
 .DS_Store
+
+# Laufzeit der Design-Fläche, nur lokal zum Ansehen der Entwürfe
+design/support.js
+desktop/wurzel.txt

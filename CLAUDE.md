@@ -8,10 +8,12 @@
   - Richtung „Mischung“ (Design-Fläche, Entwurf 1). Menü als obere Leiste mit Songtitel, Takt-Leiste (32 Zellen, sicher = grün, Schleife schraffiert) und Knöpfen (Hände, Tempo, Warten, Schleife, Vereinfacht, Noten, Pause). Farben links Pink #FF4D7D, rechts Gelb #FFE14D. Noten halb gefüllt mit leuchtendem Rand. Notenblatt unter dem Menü, die fallenden Noten beginnen darunter.
   - Bildschirme laut Design-Fläche, Seite „App“: Start (Animation), Klavier verbinden, Zuhause, Bibliothek, Umwandeln, Vor dem Spielen, Übungsplan, Üben, Schleife ziehen, Ergebnis, Einstellungen.
   - Zuhause: einladend, klar gegliedert. Menü oben mittig (Zuhause, Songs, Hinzufügen, Einstellungen), Serie und Stufe als kleine Pillen oben rechts, großer Bereich „Weiter, wo du warst“ mit fallenden Leuchtnoten, darunter drei ruhige Karten (gespielte Takte klein über 14 Tage, zuletzt geübte Songs, nächstes Ziel).
-- Nicht gewollt: Web-App auf dem iPad (Safari kann kein Web MIDI), YouTube-Download, überladenes Dashboard mit großen Kacheln und Abzeichen-Leiste, fast leere Seite.
+  - Fallende Noten kommen von außerhalb ins Bild, die Taste leuchtet beim Treffer (Start, 05.11.2026 gebaut; im Entwurf warten sie sichtbar oben und springen los).
+  - Design der Entwürfe „ganz gut“ (Lukas, 04.11.2026), das Menü-Band oben bleibt aber auf jedem Bildschirm stehen, auch bei Songs (im Entwurf fehlt es dort).
+- Nicht gewollt: Umwandler als eigenes Werkzeug neben der App, Terminal-Befehle für Lukas, Tasten-Animationen, die ruckelig anfangen (Lukas, 04.11.2026, am Entwurf), Web-App auf dem iPad (Safari kann kein Web MIDI), YouTube-Download, überladenes Dashboard mit großen Kacheln und Abzeichen-Leiste, fast leere Seite.
 
 ## Stand
-Schritt 1 und 2 der Reihenfolge sind gebaut, **Stopp vor Schritt 3: Lukas' Go steht aus.** Noch keine Oberfläche.
+Mac-App steht (05.11.2026, Lukas: „bau das zusammen als service in unsrer App“): Datei rein, umwandeln, Fassungen anhören, MIDI exportieren. **Üben fehlt noch**, ebenso Zuhause, Einstellungen, Übungsplan, Schleife, Notenblatt, Trennpunkt verschieben. Lukas' Originalsongs sind noch nicht durchgelaufen.
 Auftrag (Quelle aller Anforderungen): `Projektmanagement Vault/03 Ideen/Klavier-Trainer – Auftrag.md`.
 
 Messung vom 04.11.2026 gegen selbst erzeugte Aufnahmen (GS-Sample-Klavier von macOS, **kein echtes Klavier und kein echter Gesang**; Lukas' Originalsongs sind ungeprüft). F1 = Noten richtig erkannt, Melodie und Grundton aus der fertigen Fassung:
@@ -34,25 +36,27 @@ Daraus für den Umwandler:
 Reihenfolge laut Auftrag:
 1. Repo, `CLAUDE.md`, Einrichtungsskript (erledigt)
 2. Umwandler ohne Oberfläche testen, Notenqualität bewerten (erledigt, siehe Befehle)
-3. **STOPP:** Plan und Testergebnisse zeigen, erst nach Go weiter
-4. Übungsansicht mit MIDI-Eingang und Wartemodus, zuerst mit fertiger MIDI-Datei
-5. Bibliothek, Vereinfachen, Schleife, Notenblatt, Export
+3. Plan und Testergebnisse gezeigt (erledigt)
+4. Übungsansicht mit MIDI-Eingang und Wartemodus (offen, Go von Lukas steht aus)
+5. Bibliothek, Hörprobe und Export gebaut; offen: Vereinfachen verbessern, Schleife, Notenblatt
 6. `ui-pruefung`, Tests grün, Zielkarte nachziehen
 
 ## Aufbau
-- `einrichten.sh`: einmal ausführen. Legt `.werkzeug/` (uv), `.venv/` (Python 3.11) und `.modelle/` an.
-- `umwandler/`: Audio → Noten → drei Fassungen, ohne Oberfläche.
+- `desktop/main.js`: die Mac-App (Electron). Öffnet das Fenster, startet den Dienst auf einem freien Port und beendet ihn mit der App. Lukas sieht nur eine App, kein Terminal. Die installierte App enthält nur den Rahmen und läuft aus diesem Repo-Ordner (Pfad in `wurzel.txt`, beim Bauen eingesetzt): Änderungen an `app/` und `umwandler/` wirken ohne neu Bauen.
+- `app/index.html`: die Oberfläche (eine Datei, kein Build). Start, Songs, Hinzufügen, Umwandeln, Song.
+- `umwandler/dienst.py`: das Innere der App, wandelt nacheinander um und setzt Abgebrochenes beim nächsten Start fort. `umwandler/auftrag.py` wandelt einen Song im eigenen Prozess um. Songs liegen in `~/Library/Application Support/Klavier-Trainer/songs/`.
+- `einrichten.sh`: legt `.werkzeug/` (uv), `.venv/` (Python 3.11) und `.modelle/` an. Die App startet es beim ersten Mal selbst, falls etwas fehlt.
 - `test/`: Testaufnahmen mit bekannten Noten erzeugen, Ergebnisse dagegen messen.
-- `design/`: Entwürfe als Vorlage, eine `.dc.html` je Bildschirm, `canvas.json` mit Reihenfolge und Titeln. Sie brauchen die Laufzeit der Design-Fläche (`support.js` fehlt hier) und laufen allein nicht. Ansehen: claude.ai-Artifact „Klavier-Trainer · 4 Richtungen“, Seite „App“. Die Entwürfe binden keine Bilder ein, alles ist CSS und eingebettetes SVG. Der Titel von „Zuhause“ in `canvas.json` ist veraltet (nennt Abzeichen), es gilt die Zielkarte.
+- `design/`: Entwürfe als Vorlage, eine `.dc.html` je Bildschirm, `canvas.json` mit Reihenfolge und Titeln. Sie brauchen die Laufzeit der Design-Fläche (`design/support.js`, nicht im Repo; aus dem Artifact „Klavier-Trainer · 4 Richtungen“, `artifact-type/dc-runtime.js`). Damit lassen sie sich lokal ansehen: `python3 -m http.server 5198 --directory design`. Die Entwürfe binden keine Bilder ein, alles ist CSS und eingebettetes SVG. Der Titel von „Zuhause“ in `canvas.json` ist veraltet (nennt Abzeichen), es gilt die Zielkarte.
 
 ## Befehle
-- `./einrichten.sh --rueckfall`: einmal, richtet alles ein (ohne `--rueckfall` kein Basic Pitch).
-- `.venv/bin/python -m umwandler "song.m4a" zielordner [--band] [--trennpunkt 60]`: eine Datei umwandeln, schreibt Original, Mittel, Leicht.
+- `npm run app:install`: baut die Mac-App und legt sie nach `/Applications`. `npm run app`: startet sie aus dem Quellcode.
+- `npm test`: Tests, vor jedem Commit grün. `npm run test:app`: prüft die installierte App von außen (Start, Umwandeln, Abbruch und Fortsetzen, Hörprobe, Export), mit eigenem Profil.
+- `./einrichten.sh --rueckfall`: Umgebung von Hand, mit Basic Pitch. `.venv/bin/python -m umwandler "song.m4a" zielordner [--band]`: nur für Tests, Lukas nutzt die App.
 - `.venv/bin/python test/testaufnahmen.py testlauf/aufnahmen`, dann `.venv/bin/python -m umwandler.testlauf`: Messung, Ergebnis in `testlauf/ergebnis/`.
-- `.venv/bin/python -m unittest discover -s test`: Tests, vor jedem Commit grün.
 
 ## Rahmen
-- Läuft lokal auf dem Mac: Oberfläche im Browser (Chrome, wegen Web MIDI), dazu ein kleiner lokaler Dienst für die Umwandlung.
+- Eine Mac-App, kein getrenntes Werkzeug (Lukas, 05.11.2026). Electron statt Chrome: bringt Web MIDI mit. Läuft lokal, der Dienst ist nur von diesem Mac erreichbar.
 - Klavier per USB am Mac (Bluetooth-MIDI als Alternative). Der Ton läuft als MIDI über den Klang des Klaviers in den Kopfhörer (Annahme: das FP-30X gibt per USB empfangene Noten über seinen Klang aus, noch ungeprüft).
 - Look: Leuchtstil, nur dunkel, Farben je Hand einstellbar. Bewusst anders als der helle `app-ui`-Look; Bauweise und Bedienung (Geist, Pillen, Tab/Enter, kein Titelbalken oben links) bleiben nach `app-ui`.
 

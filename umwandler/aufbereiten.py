@@ -27,6 +27,21 @@ class Raster:
             return i[-1] + (sek - s[-1]) / m * SCHRITTE_JE_VIERTEL
         return float(np.interp(sek, s, i))
 
+    def sekunde(self, schritt):
+        """Sechzehntel-Position → Sekunde, außerhalb linear fortgesetzt."""
+        i = np.arange(len(self.schlaege)) * SCHRITTE_JE_VIERTEL
+        d = np.median(np.diff(self.schlaege)) / SCHRITTE_JE_VIERTEL
+        if schritt > i[-1]:
+            return float(self.schlaege[-1] + (schritt - i[-1]) * d)
+        if schritt < 0:
+            return float(self.schlaege[0] + schritt * d)
+        return float(np.interp(schritt, i, self.schlaege))
+
+    def in_zeit(self, noten):
+        """Eingerastete Noten mit Sekunden, so klingt die Fassung."""
+        return [{**n, "start": max(0.0, self.sekunde(n["schritt"])),
+                 "ende": max(0.01, self.sekunde(n["schritt"] + n["laenge"]))} for n in noten]
+
     def taktanfaenge(self):
         return self.schlaege[self.erster_takt % self.taktart :: self.taktart]
 
