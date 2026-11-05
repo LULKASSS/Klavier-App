@@ -31,6 +31,9 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Eine Stimme ist nicht abgehackt: Lautstärke über die Phrase glätten, Oktaven in kräftigen Teilen durchgehend statt an und aus, Pedal nur bei Akkordwechsel lösen, Töne leicht überlappen. Einzelne kurze Füller weglassen.
 - Echte Pausen nicht hart abschneiden, sondern den letzten Akkord leise ausklingen lassen. Sonst klingt es abgehackt.
 - Mehrstimmiger Gesang: CREPE liest nur einen Ton und greift bei Oktav-Dopplungen oft die untere. Basic Pitch auf der Gesangsspur zeigt beide, dann die obere nehmen. Auch Lücken lassen sich damit füllen, das bringt aber wenig.
+- Rutscher am Phrasenende (unter 0,12 s nach unten) nicht als Ton werten und erst recht nicht halten. Das brachte an den Vergleichstakten am meisten: von 71 auf 81 %.
+- Lücken mit Basic Pitch nur in der Melodie-Lage füllen, sonst wird eine tiefe Nebenstimme zur Melodie.
+- Griffe für jeden Akkord prüfen: Ein zu enger Bereich ließ alle F-Dur-Takte links verstummen. So etwas zeigt erst ein zweiter Song.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
 ## Muster aus dem Maßstab (Notenbild, 8 Takte)
