@@ -19,6 +19,7 @@ testlauf/
 .modelle/
 .venv/
 .venv-rueckfall/
+.venv-trennung/
 .werkzeug/
 
 __pycache__/

@@ -112,7 +112,7 @@ def gesang_wertung(name, stimmen, sr, ref):
     wav = ERGEBNIS / name / "stimme vocals htdemucs.wav"
     sf.write(wav, stimmen["vocals"], sr)
     aus = wav.with_suffix(".json")
-    subprocess.run([str(py), str(WURZEL / "test" / "rueckfall.py"), str(wav), str(aus)], check=True, capture_output=True)
+    subprocess.run([str(py), str(WURZEL / "umwandler" / "basic_pitch_lauf.py"), str(wav), str(aus)], check=True, capture_output=True)
     roh = sorted(json.loads(aus.read_text()), key=lambda n: (n["start"], -n["anschlag"]))
     linie = []
     for n in roh:

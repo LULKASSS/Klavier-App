@@ -10,6 +10,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from umwandler import aufbereiten as auf  # noqa: E402
 from umwandler import fassungen as fas  # noqa: E402
+from umwandler.cover import griff, lese_akkord, schreibe_midi  # noqa: E402
 
 
 def stueck(bpm=120, takte=8):
@@ -30,6 +31,30 @@ def stueck(bpm=120, takte=8):
 
 def raster(bpm=120, takte=8):
     return auf.Raster(np.arange(takte * 4 + 1) * 60 / bpm, 0)
+
+
+class Cover(unittest.TestCase):
+    def test_jeder_akkord_findet_drei_toene(self):
+        for w in range(12):
+            for iv in ((0, 4, 7), (0, 3, 7)):
+                self.assertEqual(len(griff([(w + q) % 12 for q in iv])), 3)
+
+    def test_griff_bleibt_unter_der_stimme(self):
+        self.assertEqual(griff([6, 9, 1]), [49, 54, 57])
+
+    def test_akkorde_lesen(self):
+        self.assertEqual(lese_akkord('F#:min'), (6, [6, 9, 1]))
+        self.assertEqual(lese_akkord('D:maj/5'), (9, [2, 6, 9]))
+        self.assertIsNone(lese_akkord('N'))
+
+    def test_midi_behaelt_die_zeit_im_song(self):
+        with tempfile.TemporaryDirectory() as t:
+            p = Path(t) / 'a.mid'
+            schreibe_midi(p, .5, [[1.0, 2.0]], [{'start': 3.0, 'ende': 3.5, 'ton': 72, 'anschlag': 80}], [{'start': 3.0, 'ende': 3.5, 'ton': 48, 'anschlag': 50}], 'Größe')
+            import pretty_midi
+            m = pretty_midi.PrettyMIDI(str(p))
+            self.assertEqual([round(i.notes[0].start, 2) for i in m.instruments], [3.0, 3.0])
+            self.assertEqual(len(m.instruments[1].control_changes), 2)
 
 
 class Einrasten(unittest.TestCase):

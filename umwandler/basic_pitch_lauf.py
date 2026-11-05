@@ -1,6 +1,6 @@
 """Basic Pitch auf einer Aufnahme laufen lassen (Umgebung .venv-rueckfall).
 
-Aufruf: .venv-rueckfall/bin/python test/rueckfall.py <eingabe.wav> <ausgabe.json>
+Aufruf: .venv-rueckfall/bin/python umwandler/basic_pitch_lauf.py <eingabe.wav> <ausgabe.json>
 Schreibt die Noten als {start, ende, ton, anschlag}, gewertet wird in der Hauptumgebung.
 """
 import json

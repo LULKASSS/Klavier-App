@@ -12,9 +12,11 @@ import numpy as np
 from . import aufbereiten as auf
 from . import erkennen as erk
 from . import fassungen as fas
+from .cover import baue_cover, schreibe_midi
 from .hoerprobe import hoerprobe
+from .spuren import berechne
 
-FASSUNGEN = {"leicht": "Leicht", "mittel": "Mittel", "original": "Original"}
+FASSUNGEN = {"leicht": "Leicht", "mittel": "Mittel", "original": "Cover"}
 BALKEN = 96
 
 
@@ -30,6 +32,23 @@ def welle(x):
     return [round(float(v), 3) for v in w / (w.max() + 1e-9)]
 
 
+def cover_aus_band(ordner, meta):
+    """Band-Song: Rechts die Stimme, links die Begleitung. Die Spuren werden gemerkt, Neu-Umwandeln geht dann schnell."""
+    sp = berechne(ordner / meta["datei"], ordner, melde)
+    c = np.load(sp.grund)
+    (ordner / "wellen.json").write_text(json.dumps({"Gesang": welle(c["voc"]), "Bass": welle(c["bas"]), "Rest": welle(c["oth"])}))
+    melde(wellen=True)
+    melde(schritt="fassungen")
+    e = baue_cover(sp)
+    for key in FASSUNGEN:
+        rechts, links = e[key]["rechts"], e[key]["links"]
+        schreibe_midi(ordner / f"{key}.mid", e["viertel_s"], e["pedal"], rechts, links, f'{meta["name"]} {FASSUNGEN[key]}')
+        (ordner / f"{key}.json").write_text(json.dumps(
+            sorted([[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1] for n in rechts] + [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 0] for n in links])))
+        hoerprobe(sorted(rechts + links, key=lambda n: n["start"]), ordner / key, e["pedal"])
+    melde(bpm=round(e["bpm"]), takte=e["takte"], notenzahl={k: len(e[k]["rechts"]) + len(e[k]["links"]) for k in FASSUNGEN})
+
+
 def umwandeln(ordner):
     ordner = Path(ordner)
     meta = json.loads((ordner / "meta.json").read_text())
@@ -43,13 +62,8 @@ def umwandeln(ordner):
     melde(dauer=dauer)
 
     if meta.get("band"):
-        melde(schritt="trennen")
-        stimmen, sr = erk.trenne_stimmen(x, sr, erk.TRENN_MODELL)
-        wellen = {"Gesang": welle(stimmen["vocals"]), "Schlagzeug": welle(stimmen["drums"]),
-                  "Bass": welle(stimmen["bass"]), "Rest": welle(stimmen[erk.TRENN_STIMME])}
-        x = stimmen[erk.TRENN_STIMME]
-    else:
-        wellen = {"Aufnahme": welle(x)}
+        return cover_aus_band(ordner, meta)
+    wellen = {"Aufnahme": welle(x)}
     (ordner / "wellen.json").write_text(json.dumps(wellen))
     melde(wellen=True)
 
@@ -64,7 +78,7 @@ def umwandeln(ordner):
     melde(schritt="fassungen")
     inhalte = {"original": quant, "mittel": fas.fassung_mittel(quant, raster), "leicht": fas.fassung_leicht(quant, raster)}
     for key, inhalt in inhalte.items():
-        fas.schreibe_midi(inhalt, raster, ordner / f"{key}.mid", f'{meta["name"]} {FASSUNGEN[key]}')
+        fas.schreibe_midi(inhalt, raster, ordner / f"{key}.mid", f'{meta["name"]} {key.capitalize()}')
         zeit = raster.in_zeit(inhalt)
         (ordner / f"{key}.json").write_text(json.dumps(
             [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1 if n["hand"] == "rechts" else 0] for n in zeit]))

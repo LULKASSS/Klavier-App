@@ -34,7 +34,7 @@ function fensterOeffnen() {
 /** Erster Start ohne Umgebung: einrichten.sh läuft einmal im Hintergrund. */
 function einrichten() {
   return new Promise((fertig, fehler) => {
-    if (fs.existsSync(PYTHON) && fs.existsSync(path.join(WURZEL, '.modelle'))) return fertig();
+    if (fs.existsSync(PYTHON) && fs.existsSync(path.join(WURZEL, '.modelle')) && fs.existsSync(path.join(WURZEL, '.venv-trennung'))) return fertig();
     fenster.loadURL(hinweisSeite('Wird eingerichtet, das dauert beim ersten Mal einige Minuten …'));
     const p = spawn('/bin/bash', [path.join(WURZEL, 'einrichten.sh')], { cwd: WURZEL, stdio: 'ignore' });
     p.on('error', fehler);

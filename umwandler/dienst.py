@@ -233,7 +233,8 @@ def baue_handler(bib, oberflaeche):
             stamm, _, endung = datei.rpartition(".")
             if stamm not in FASSUNGEN or endung not in ("mid", "json", "m4a"):
                 raise KeyError
-            name = f'{m["name"]} – {FASSUNGEN[stamm]}.mid'.replace("/", "-") if endung == "mid" else None
+            titel = "Cover" if m.get("band") and stamm == "original" else FASSUNGEN[stamm]
+            name = f'{m["name"]} – {titel}.mid'.replace("/", "-") if endung == "mid" else None
             return self._datei(ordner / datei, name)
 
         def do_POST(self):

@@ -11,3 +11,6 @@ mir_eval
 numpy
 scipy
 setuptools<81
+torchcrepe
+beat-this
+lv-chordia

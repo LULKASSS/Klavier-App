@@ -34,6 +34,7 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Rutscher am Phrasenende (unter 0,12 s nach unten) nicht als Ton werten und erst recht nicht halten. Das brachte an den Vergleichstakten am meisten: von 71 auf 81 %.
 - Lücken mit Basic Pitch nur in der Melodie-Lage füllen, sonst wird eine tiefe Nebenstimme zur Melodie.
 - Griffe für jeden Akkord prüfen: Ein zu enger Bereich ließ alle F-Dur-Takte links verstummen. So etwas zeigt erst ein zweiter Song.
+- Ansatz aus dem Lautstärke-Anstieg statt aus der ersten erkennbaren Tonhöhe. Kürzeres Binden und freieres Raster verschlechtern dagegen messbar (83 auf 73–76 %), die Pausen im Notenbild sind im Gesang oft keine.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
 ## Muster aus dem Maßstab (Notenbild, 8 Takte)
@@ -66,4 +67,4 @@ Die Regeln stammen aus 4 Gesangstakten einer Strophe. Für Refrains sind sie unb
 
 Quellen: [Beat This!](https://pypi.org/project/beat-this/), [lv-chordia](https://pypi.org/project/lv-chordia/), [Etude](https://github.com/Xiugapurin/Etude), [SOME](https://github.com/openvpi/SOME), [allin1](https://pypi.org/project/allin1/), [Karaoke-Modelle](https://mvsep.com/news/64).
 
-Versuche liegen unversioniert in `.cover/`, Hörproben in `testlauf/`. Keine Audio- oder MIDI-Dateien ins Repo.
+Der Bau liegt in `umwandler/cover.py` und `umwandler/spuren.py`, Versuche unversioniert in `.cover/`, Hörproben in `testlauf/`. Spuren bleiben je Song im Bibliotheks-Ordner, „Neu umwandeln“ nutzt sie erneut. Keine Audio- oder MIDI-Dateien ins Repo.

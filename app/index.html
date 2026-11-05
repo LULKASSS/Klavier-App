@@ -165,7 +165,8 @@ const FASSUNG = {
   mittel: {titel: 'Mittel', text: 'Melodie, links einfache Akkorde'},
   original: {titel: 'Original', text: 'Alles, was erkannt wurde'},
 };
-const SCHRITTE = {trennen: 'Stimmen trennen', erkennen: 'Klavier-Noten erkennen', takt: 'Takt und Tempo finden', fassungen: 'Leicht, Mittel, Original bauen'};
+const SCHRITTE = {trennen: 'Stimmen trennen', hauptstimme: 'Hauptstimme heraushören', akkorde: 'Akkorde und Instrumente finden', erkennen: 'Klavier-Noten erkennen', takt: 'Takt und Tempo finden', fassungen: 'Leicht, Mittel, Cover bauen'};
+const REIHE = (band) => band ? ['trennen', 'hauptstimme', 'akkorde', 'fassungen'] : ['erkennen', 'takt', 'fassungen'];
 const ICON = {
   zurueck: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>',
   laden: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>',
@@ -174,6 +175,11 @@ const ICON = {
   pause: '<svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/></svg>',
 };
 
+const fassungen = (m) => m.band ? {
+  leicht: {titel: 'Leicht', text: 'Stimme, links der Bass'},
+  mittel: {titel: 'Mittel', text: 'Stimme, links das Begleitmuster'},
+  original: {titel: 'Cover', text: 'Dazu Oktaven und Instrumente'},
+} : FASSUNG;
 const S = {songs: [], song: null, neu: null, band: false, laden: false, fassung: 'leicht', quelle: 'fassung', noten: {}, seite: '', muster: ''};
 
 function melden(t) {
@@ -349,7 +355,7 @@ function menue() {
 const zuletztFertig = () => S.songs.find((m) => m.status === 'fertig');
 
 function standText(m) {
-  if (m.status === 'fertig') return {text: m.band ? 'mit Band' : '', klasse: ''};
+  if (m.status === 'fertig') return {text: m.band ? 'Cover' : '', klasse: ''};
   if (m.status === 'fehler') return {text: 'fehlgeschlagen', klasse: 'fehler'};
   if (m.status === 'wartet') return {text: 'wartet', klasse: 'laeuft'};
   return {text: 'wird umgewandelt', klasse: 'laeuft'};
@@ -363,16 +369,16 @@ function metaText(m) {
 }
 function gesamtAnteil(m) {
   if (m.status === 'fertig') return 1;
-  const reihe = m.band ? ['trennen', 'erkennen', 'takt', 'fassungen'] : ['erkennen', 'takt', 'fassungen'];
-  const gewicht = m.band ? [.35, .5, .02, .13] : [.8, .03, .17];
+  const reihe = REIHE(m.band);
+  const gewicht = m.band ? [.4, .4, .17, .03] : [.8, .03, .17];
   const i = reihe.indexOf(m.schritt);
   if (i < 0) return 0;
-  return gewicht.slice(0, i).reduce((a, b) => a + b, 0) + gewicht[i] * (m.anteil || 0);
+  return gewicht.slice(0, i).reduce((a, b) => a + b, 0) + gewicht[i] * (m.schritt === 'erkennen' ? (m.anteil || 0) : 0);
 }
 function restText(m) {
   if (m.status !== 'laeuft' || !m.dauer) return m.status === 'wartet' ? 'wartet auf den Song davor' : '';
   const a = gesamtAnteil(m);
-  const gesamt = (m.band ? .55 : .33) * m.dauer + 15; // gemessen am Testlauf, Hörproben als fester Anteil
+  const gesamt = (m.band ? 4.5 : .33) * m.dauer + 15; // gemessen an Glatteis und Gutmensch
   const rest = Math.max(0, gesamt * (1 - a));
   if (rest < 45) return 'gleich fertig';
   const min = Math.max(1, Math.round(rest / 60));
@@ -453,7 +459,7 @@ function seiteNeu() {
         <span class="klein" id="art-titel">Was ist drauf?</span>
         <div class="umschalter" role="radiogroup" aria-labelledby="art-titel" style="align-self:flex-start">
           <button role="radio" data-band="0" aria-checked="${!S.band}">Nur Klavier</button>
-          <button role="radio" data-band="1" aria-checked="${S.band}">Mit Band</button>
+          <button role="radio" data-band="1" aria-checked="${S.band}">Cover aus der Band</button>
         </div>
       </div>
       <div class="schritte">${schritteHtml({band: S.band, status: 'wartet'})}</div>
@@ -468,7 +474,7 @@ function seiteNeu() {
   n.focus(); n.select();
 }
 function schritteHtml(m) {
-  const reihe = m.band ? ['trennen', 'erkennen', 'takt', 'fassungen'] : ['erkennen', 'takt', 'fassungen'];
+  const reihe = REIHE(m.band);
   const jetzt = m.status === 'fertig' ? reihe.length : reihe.indexOf(m.schritt);
   return reihe.map((k, i) => {
     const fertig = i < jetzt, laeuft = i === jetzt && m.status === 'laeuft';
@@ -538,12 +544,13 @@ function seiteSong() {
   const m = S.song;
   const ton = $('#ton');
   const zahl = m.notenzahl || {};
+  if (S.fassungVon !== m.id) { S.fassung = m.band ? 'original' : 'leicht'; S.fassungVon = m.id; }
   $('#haupt').innerHTML = `<div class="auftritt">
     <div class="songkopf"><a class="pille zurueck" href="#songs">${ICON.zurueck}Songs</a>
-      <div class="rechts"><button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a></div></div>
-    <div class="titelzeile"><input class="titelfeld" id="titel" value="${esc(m.name)}" aria-label="Songtitel" autocomplete="off"><span class="klein">${esc(metaText(m))}${m.band ? ' · Gesang noch nicht in der Melodie' : ''}</span></div>
+      <div class="rechts"><button class="pille" id="neuwandeln">Neu umwandeln</button><button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a></div></div>
+    <div class="titelzeile"><input class="titelfeld" id="titel" value="${esc(m.name)}" aria-label="Songtitel" autocomplete="off"><span class="klein">${esc(metaText(m))}</span></div>
     <div class="fassungen" role="radiogroup" aria-label="Fassung" id="fassungen">
-      ${Object.entries(FASSUNG).map(([k, f]) => `<button class="fassung" role="radio" data-fassung="${k}" aria-checked="${S.fassung === k}" tabindex="${S.fassung === k ? 0 : -1}">
+      ${Object.entries(fassungen(m)).map(([k, f]) => `<button class="fassung" role="radio" data-fassung="${k}" aria-checked="${S.fassung === k}" tabindex="${S.fassung === k ? 0 : -1}">
         <canvas data-klein="${k}" aria-hidden="true"></canvas>
         <span class="zeile"><b>${f.titel}</b><span class="klein">${zahl[k] ?? '–'} Noten</span></span>
         <span class="zeile klein">${f.text}</span></button>`).join('')}
@@ -701,6 +708,10 @@ document.addEventListener('click', async (e) => {
     return;
   }
   if (t.id === 'spiel') return spielen();
+  if (t.id === 'neuwandeln') {
+    try { const m = await api(`songs/${S.song.id}/nochmal`, {method: 'POST'}); for (const k of Object.keys(S.noten)) if (k.startsWith(m.id)) delete S.noten[k]; location.hash = `#umwandeln/${m.id}`; } catch (x) { melden(x.message); }
+    return;
+  }
   if (t.id === 'nochmal') {
     try { S.song = await api(`songs/${S.song.id}/nochmal`, {method: 'POST'}); S.wellenDa = false; auffrischenUmwandeln(); } catch (x) { melden(x.message); }
     return;
