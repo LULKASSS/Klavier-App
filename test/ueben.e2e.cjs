@@ -99,7 +99,7 @@ const warte = (ms) => new Promise((r) => setTimeout(r, ms));
     assert.ok(z.wartet && z.gi === 1, 'wartet beim nächsten Ton');
     // Linke Hand übernimmt die App, rechte Hand übe ich
     await p.mouse.move(300, 300);
-    await p.click('[data-haende="r"]');
+    await p.click('.ue-leiste [data-haende="r"]');
     await warte(60);
     z = await uebung();
     assert.strictEqual(z.gruppen, 16);
@@ -188,12 +188,12 @@ const warte = (ms) => new Promise((r) => setTimeout(r, ms));
     await p.click('#ueben-los');
     await p.waitForSelector('.ue-leiste');
     await warte(150);
-    assert.strictEqual(await p.getAttribute('[data-haende="r"]', 'aria-pressed'), 'true');
+    assert.strictEqual(await p.getAttribute('.ue-leiste [data-haende="r"]', 'aria-pressed'), 'true');
     ok('Die gewählte Hand bleibt beim Wiederkommen');
     await p.keyboard.press('l');
-    assert.strictEqual(await p.getAttribute('[data-haende="l"]', 'aria-pressed'), 'true');
+    assert.strictEqual(await p.getAttribute('.ue-leiste [data-haende="l"]', 'aria-pressed'), 'true');
     assert.strictEqual((await uebung()).gruppen, 8);
-    await p.click('[data-haende="beide"]');
+    await p.click('.ue-leiste [data-haende="beide"]');
     assert.strictEqual((await uebung()).gruppen, 16 + 8 - 8);
     ok('Links und Beide lassen sich wählen');
     const vor = await p.evaluate(() => S.uebung.warten);
@@ -220,6 +220,96 @@ const warte = (ms) => new Promise((r) => setTimeout(r, ms));
     await warte(200);
     assert.deepStrictEqual(await p.evaluate(() => window.__gesendet), []);
     ok('Pause schweigt am Klavier');
+    // Schleife endet auf dem letzten vollen Ton, höchstens einen halben Takt später
+    await p.evaluate((i) => { location.hash = `#ueben/${i}/original/1/2`; }, id);
+    await p.waitForSelector('.ue-leiste');
+    await warte(150);
+    assert.deepStrictEqual((await uebung()).schleife, [1, 2]);
+    const ende = await p.evaluate(() => {
+      const u = S.uebung, ohne = u.grenzen().ende;
+      u.noten.push({a: 5.9, e: 9, ton: 70, hand: 1, i: 999});
+      u.grenzenFuer = null;
+      const mit = u.grenzen().ende;
+      u.noten.pop(); u.grenzenFuer = null;
+      return {ohne, mit};
+    });
+    assert.ok(Math.abs(ende.ohne - 6) < .01 && Math.abs(ende.mit - 7) < .01, JSON.stringify(ende));
+    ok('Schleife klingt bis zum letzten vollen Ton aus');
+    // Drei Runden über 90 % machen einen Teil sicher
+    await p.evaluate(() => {
+      const u = S.uebung;
+      u.haende = 'beide'; u.neuPlanen();
+      u.neueSekunden = 65;
+      for (let r = 0; r < 3; r++) {
+        for (let k = 0; k < 4; k++) { u.werte[k] = {ist: u.sollJe[k], falsch: 0}; u.stand.takte[k] = (u.stand.takte[k] || 0) + 1; u.neueTakte += 1; }
+        u.rundeWerten(0, 3);
+      }
+      u.speichern();
+    });
+    await warte(150);
+    await p.keyboard.press('Escape');
+    await p.waitForSelector('.teile');
+    assert.ok((await p.textContent('.teil')).includes('sicher'), 'Teil ist sicher');
+    assert.ok((await p.textContent('.plan-zahl')).startsWith('1'));
+    assert.ok((await p.textContent('.plan-kopf')).includes('zuletzt heute'));
+    await p.screenshot({ path: path.join(FOTOS, 'plan.png') });
+    ok('Übungsplan zeigt sichere Teile, Zurück führt dorthin');
+    await p.click('#menue a[href="#zuhause"]');
+    await p.waitForSelector('.drei');
+    const haus = await p.textContent('#haupt');
+    assert.ok(haus.includes('Probe') && haus.includes('Weiter, wo du warst') && parseInt(haus.match(/(\d+) diese Woche/)?.[1]) >= 12, haus);
+    assert.ok((await p.textContent('#kopf-stand')).includes('1 Tag'));
+    assert.ok((await p.textContent('#kopf-stand')).includes('Stufe'));
+    await p.screenshot({ path: path.join(FOTOS, 'zuhause.png') });
+    ok('Zuhause zeigt Weiterspielen, Takte und Serie');
+    // Einstellungen wirken und bleiben
+    await p.click('#menue a[href="#einstellungen"]');
+    await p.waitForSelector('.eins');
+    assert.ok((await p.textContent('[data-wahl="eingang"]')).includes('Roland'));
+    await p.click('[data-farbe="links"][data-wert="#B79CFF"]');
+    await warte(100);
+    await p.screenshot({ path: path.join(FOTOS, 'einstellungen.png') });
+    await p.reload();
+    await p.waitForSelector('.eins');
+    assert.strictEqual(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--links').trim()), '#B79CFF');
+    assert.strictEqual(await p.getAttribute('[data-farbe="links"][data-wert="#B79CFF"]', 'aria-pressed'), 'true');
+    ok('Einstellungen bleiben nach dem Neuladen');
+    // Ton über das Klavier aus: Die App spielt nichts mehr ans Klavier
+    await p.click('[data-schalter="tonAmKlavier"]');
+    assert.strictEqual(await p.evaluate(() => Midi.aus), null);
+    await p.click('[data-schalter="tonAmKlavier"]');
+    assert.notStrictEqual(await p.evaluate(() => Midi.aus), null);
+    ok('Ton über das Klavier lässt sich abschalten');
+    // Klavier verbinden
+    await p.click('a[href="#klavier"]');
+    await p.waitForSelector('#schritt-taste');
+    assert.ok(await p.isDisabled('#klavier-fertig'));
+    await p.evaluate(() => window.__klavier(60, true));
+    assert.ok((await p.textContent('#schritt-taste .wert')).includes('C4'));
+    await p.screenshot({ path: path.join(FOTOS, 'verbinden.png') });
+    await p.evaluate(() => { window.__gesendet.length = 0; });
+    await p.click('#testton');
+    assert.ok((await p.evaluate(() => window.__gesendet)).some(([s, t]) => s === 0x90 && t === 60));
+    await p.click('#klavier-fertig');
+    await p.waitForSelector('.drei');
+    assert.strictEqual(await p.evaluate(() => Einst.werte.klavierFertig), true);
+    ok('Klavier verbinden erkennt die Taste und spielt den Testton');
+    // Vor dem Spielen: Wahl auf der Song-Seite gilt beim Üben
+    await p.click('#menue a[href="#songs"]');
+    await p.click('.karte');
+    await p.waitForSelector('#vorab');
+    await p.click('#vorab [data-haende="l"]');
+    await p.click('#vorab [data-stufe="-1"]');
+    const vorTempo = await p.evaluate(() => Einst.werte.tempo);
+    await p.screenshot({ path: path.join(FOTOS, 'song.png') });
+    await p.click('#ueben-los');
+    await p.waitForSelector('.ue-leiste');
+    await warte(150);
+    assert.strictEqual(await p.evaluate(() => S.uebung.haende), 'l');
+    assert.strictEqual((await uebung()).tempo, vorTempo);
+    await p.keyboard.press('Escape');
+    await p.waitForFunction(() => document.querySelector('#ueben').hidden);
+    ok('Vor dem Spielen: Hände und Tempo gelten beim Üben');
     assert.strictEqual(await p.locator('#meldung').isVisible(), false, 'keine Fehlermeldung');
     assert.deepStrictEqual(fehler, []);
     ok('Keine Fehler in der Oberfläche');

@@ -1,6 +1,38 @@
 'use strict';
 /* Üben: fallende Noten über der Klaviatur, Klavier per Web MIDI, Wartemodus, Hände einzeln, Tempo, Schleife. */
 
+/* Einstellungen liegen beim Dienst: Die App startet auf wechselndem Port, Browser-Speicher wäre jedes Mal leer. */
+const Einst = {
+  werte: {haende: 'beide', tempo: 100, warten: true, noten: false, band: false, bandLaut: 35, tonAmKlavier: true, ruhig: true,
+    links: '#FF4D7D', rechts: '#FFE14D', eingang: '', ausgang: '', klavierFertig: false},
+  async laden() {
+    try { Object.assign(this.werte, await (await fetch('/api/einstellungen')).json()); } catch { /* dann gelten die Vorgaben */ }
+    this.farben();
+  },
+  setzen(k, v) {
+    this.werte[k] = v;
+    this.farben();
+    fetch('/api/einstellungen', {method: 'POST', body: JSON.stringify(this.werte)}).catch(() => {});
+  },
+  farben() {
+    document.documentElement.style.setProperty('--links', this.werte.links);
+    document.documentElement.style.setProperty('--rechts', this.werte.rechts);
+  },
+};
+const handFarbe = (hand) => (hand ? Einst.werte.rechts : Einst.werte.links);
+
+/* Ein Song zerfällt in gleich lange Teile, lange Songs in längere. */
+const SICHER_RUNDEN = 3, SICHER_PROZENT = 90;
+function teileVon(song) {
+  const n = song.takte || 0, je = n <= 40 ? 4 : 8, aus = [];
+  for (let von = 0; von < n; von += je) aus.push({nr: aus.length + 1, von, bis: Math.min(n, von + je) - 1});
+  // Ein kurzer Rest am Ende ist kein eigener Teil
+  const letzter = aus[aus.length - 1];
+  if (aus.length > 1 && letzter.bis - letzter.von + 1 < je / 2) { aus.pop(); aus[aus.length - 1].bis = letzter.bis; }
+  return aus;
+}
+const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
 const Midi = {
   ein: null, aus: null, zugang: null, hoerer: new Set(), ton: null, klingend: new Map(),
   async start() {
@@ -12,13 +44,13 @@ const Midi = {
     } catch { this.zugang = null; }
   },
   waehlen() {
-    const passt = (ports) => {
+    const passt = (ports, gewuenscht) => {
       const alle = [...ports.values()].filter((p) => p.state !== 'disconnected');
-      return alle.find((p) => /roland|fp-?30|digital piano/i.test(p.name)) || alle[0] || null;
+      return alle.find((p) => p.name === gewuenscht) || alle.find((p) => /roland|fp-?30|digital piano/i.test(p.name)) || alle[0] || null;
     };
     if (this.ein) this.ein.onmidimessage = null;
-    this.ein = passt(this.zugang.inputs);
-    this.aus = passt(this.zugang.outputs);
+    this.ein = passt(this.zugang.inputs, Einst.werte.eingang);
+    this.aus = Einst.werte.tonAmKlavier ? passt(this.zugang.outputs, Einst.werte.ausgang) : null;
     if (this.ein) this.ein.onmidimessage = (e) => {
       const [st, ton, v] = e.data;
       if ((st & 0xF0) === 0x90 && v > 0) this.anschlag(ton, true, v);
@@ -26,6 +58,7 @@ const Midi = {
     };
     for (const h of this.hoerer) h.klavierGeaendert?.();
   },
+  namen(art) { return this.zugang ? [...this.zugang[art].values()].filter((p) => p.state !== 'disconnected').map((p) => p.name) : []; },
   anschlag(ton, an, v = 90) { for (const h of this.hoerer) h.taste?.(ton, an, v); },
   note(ton, an, v = 80, wann) {
     if (this.aus) { this.aus.send(an ? [0x90, ton, v] : [0x80, ton, 0], wann); return; }
@@ -187,7 +220,7 @@ function schreibweise(ton, vorz) {
 }
 
 class Uebung {
-  constructor(wurzel, song, fassung, noten, pedal, fortschritt, wechseln, zurueck) {
+  constructor(wurzel, song, fassung, noten, pedal, fortschritt, wechseln, zurueck, bereich = null) {
     Object.assign(this, {wurzel, song, fassung, pedal, wechseln, zurueck});
     this.noten = noten.map(([a, e, ton, hand, v], i) => ({a, e, ton, hand, v, i})).sort((x, y) => x.a - y.a || x.ton - y.ton);
     this.takt_s = song.takt_s || 240 / (song.bpm || 120);
@@ -196,15 +229,20 @@ class Uebung {
     this.taktzahl = Math.max(1, Math.ceil((this.ende - this.takt_ab) / this.takt_s));
     this.sicher = new Set(fortschritt?.[fassung]?.sicher || []);
     this.fortschritt = fortschritt || {};
-    try { this.haende = localStorage.getItem('klavier-haende') || 'beide'; } catch { this.haende = 'beide'; }
-    this.tempo = 100; this.warten = true;
-    this.schleife = null; this.laeuft = false; this.t = 0; this.gedrueckt = new Map(); this.falsch = new Map();
+    this.stand = {takte: {}, teile: {}, sekunden: 0, ...(this.fortschritt[fassung] || {})};
+    this.teile = teileVon(song);
+    this.neueTakte = 0; this.neueSekunden = 0;
+    this.haende = Einst.werte.haende; this.tempo = Einst.werte.tempo; this.warten = Einst.werte.warten;
+    this.schleife = bereich ? [Math.min(bereich[0], this.taktzahl - 1), Math.min(bereich[1], this.taktzahl - 1)] : null;
+    this.laeuft = false; this.t = 0; this.gedrueckt = new Map(); this.falsch = new Map();
     this.funken = []; this.klingt = new Map(); this.werte = {}; this.fertig = false;
     this.lage = this.tastenLage();
     this.vorz = song.vorzeichen ?? tonartAus(noten);
-    try { this.blatt = localStorage.getItem('klavier-noten') === '1'; } catch { this.blatt = false; }
+    this.blatt = Einst.werte.noten;
     this.bauen();
-    this.t = Math.max(0, (this.noten[0]?.a ?? 0) - VORLAUF_S);
+    this.t = Math.max(0, (this.schleife ? this.takt_ab + this.schleife[0] * this.takt_s - 1.5 : this.noten[0]?.a ?? 0) - (this.schleife ? 0 : VORLAUF_S));
+    this.band = new Audio(`/api/songs/${song.id}/begleitung`);
+    this.band.preload = Einst.werte.band ? 'auto' : 'none';
     this.neuPlanen();
     Midi.hoerer.add(this);
     Midi.start().then(() => this.klavierGeaendert());
@@ -223,6 +261,8 @@ class Uebung {
   beenden() {
     this.leben = false;
     this.anhalten();
+    this.band.pause();
+    this.band.removeAttribute('src');
     Midi.hoerer.delete(this);
     window.removeEventListener('resize', this.rs);
     document.removeEventListener('keydown', this.ts);
@@ -255,6 +295,8 @@ class Uebung {
     }
     for (const [a, e] of this.pedal) { this.selbst.push({t: a, an: 2}); this.selbst.push({t: e, an: 3}); }
     this.selbst.sort((x, y) => x.t - y.t);
+    this.sollJe = {};
+    for (const g of this.gruppen) { const k = this.takt(g.t); this.sollJe[k] = (this.sollJe[k] || 0) + g.toene.size; }
     this.springen(this.t);  // Handwechsel oder Klavier einstecken unterbricht das Spielen nicht
   }
 
@@ -304,9 +346,13 @@ class Uebung {
   }
 
   taktFertig(k) {
-    const soll = this.gruppen.filter((g) => this.takt(g.t) === k).reduce((s, g) => s + g.toene.size, 0);
+    const soll = this.sollJe[k] || 0;
     const w = this.wert(k);
     if (soll && w.ist / soll >= .9 && w.falsch <= soll * .1) this.sicher.add(k);
+    if (w.ist) {
+      this.stand.takte[k] = (this.stand.takte[k] || 0) + 1;
+      this.neueTakte += 1;
+    }
     this.zellen();
   }
 
@@ -315,6 +361,48 @@ class Uebung {
     this.laeuft = !this.laeuft;
     if (!this.laeuft) { this.anhalten(); this.speichern(); } else this.wach();
     this.anzeigen();
+  }
+
+  /* Eine Runde über diese Takte ist durch: Jeder ganz gespielte Teil bekommt seine Wertung. */
+  rundeWerten(von, bis) {
+    for (const teil of this.teile) {
+      if (teil.von < von || Math.min(teil.bis, this.taktzahl - 1) > bis) continue;
+      let soll = 0, ist = 0, falsch = 0;
+      for (let k = teil.von; k <= teil.bis; k++) {
+        soll += this.sollJe[k] || 0;
+        ist += this.werte[k]?.ist || 0;
+        falsch += this.werte[k]?.falsch || 0;
+      }
+      if (!soll || !ist) continue;
+      const prozent = Math.round(Math.max(0, ist - falsch) / soll * 100);
+      const s = (this.stand.teile[teil.nr] ??= {runden: 0, beste: 0, gut: 0});
+      s.runden += 1;
+      s.beste = Math.max(s.beste, prozent);
+      // Sicher heißt mit beiden Händen
+      if (prozent >= SICHER_PROZENT && this.haende === 'beide') s.gut += 1;
+    }
+  }
+
+  /* Schleife endet auf dem letzten vollen Ton: Was im letzten Takt anfängt, darf ausklingen, höchstens einen halben Takt. */
+  grenzen() {
+    const schluessel = this.schleife.join('-');
+    if (this.grenzenFuer === schluessel) return this.grenzenWert;
+    const von = this.takt_ab + this.schleife[0] * this.takt_s, taktEnde = this.takt_ab + (this.schleife[1] + 1) * this.takt_s;
+    let ende = taktEnde;
+    for (const n of this.noten) if (n.a >= von && n.a < taktEnde) ende = Math.max(ende, n.e);
+    this.grenzenFuer = schluessel;
+    this.grenzenWert = {von, taktEnde, ende: Math.min(ende, taktEnde + this.takt_s / 2)};
+    return this.grenzenWert;
+  }
+
+  bandStimmen() {
+    const b = this.band;
+    const soll = Einst.werte.band && this.laeuft && !this.wartet && this.t >= 0 && !this.fertig;
+    if (!soll) { if (!b.paused) b.pause(); return; }
+    b.volume = Math.min(1, Einst.werte.bandLaut / 100);
+    b.playbackRate = this.tempo / 100;
+    if (Math.abs(b.currentTime - this.t) > .15) { try { b.currentTime = this.t; } catch { /* lädt noch */ } }
+    if (b.paused) b.play().catch(() => {});
   }
 
   anhalten() {
@@ -334,18 +422,22 @@ class Uebung {
   schritt(dt) {
     if (!this.laeuft) return;
     let t = this.t + dt * (this.tempo / 100);
+    if (this.mitKlavier()) this.neueSekunden += dt;
+    const gr = this.schleife ? this.grenzen() : null;
+    const dran = (x) => x && (!gr || x.t < gr.taktEnde);
     const g = this.gruppen[this.gi];
     this.wartet = false;
-    if (this.warten && g && t >= g.t) {
+    if (this.warten && dran(g) && t >= g.t) {
       t = g.t;
       this.wartet = true;
     }
     if (!this.warten) {
-      while (this.gruppen[this.gi] && this.gruppen[this.gi].t + GNADE_S < t) this.weiter();
+      while (dran(this.gruppen[this.gi]) && this.gruppen[this.gi].t + GNADE_S < t) this.weiter();
     }
     // Was die App selbst spielt
     while (this.ei < this.selbst.length && this.selbst[this.ei].t <= t) {
       const e = this.selbst[this.ei++];
+      if (gr && e.an === 1 && e.t >= gr.taktEnde) continue;  // der Takt nach der Schleife klingt nicht mehr an
       if (e.an === 1) {
         // Die andere Hand etwas leiser, damit man sich selbst hört
         const v = e.n.v ?? 72;
@@ -356,15 +448,13 @@ class Uebung {
       else Midi.pedal(e.an === 2);
     }
     this.t = t;
-    if (this.schleife) {
-      const bis = this.takt_ab + (this.schleife[1] + 1) * this.takt_s;
-      if (t >= bis) {
-        // Takt-Bewertung vor dem Rücksprung sichern, die Runde beginnt neu
-        const von = this.takt_ab + this.schleife[0] * this.takt_s;
-        for (let k = this.schleife[0]; k <= this.schleife[1]; k++) delete this.werte[k];
-        this.springen(von, true);
-        return;
-      }
+    if (gr && t >= gr.ende) {
+      // Takt-Bewertung vor dem Rücksprung sichern, die Runde beginnt neu
+      this.rundeWerten(this.schleife[0], this.schleife[1]);
+      for (let k = this.schleife[0]; k <= this.schleife[1]; k++) delete this.werte[k];
+      this.speichern();
+      this.springen(gr.von, true);
+      return;
     }
     if (t > this.ende + 1) this.abschluss();
   }
@@ -372,6 +462,7 @@ class Uebung {
   abschluss() {
     this.anhalten();
     this.fertig = true;
+    this.rundeWerten(0, this.taktzahl - 1);
     this.speichern();
     const soll = this.gruppen.reduce((s, g) => s + g.toene.size, 0);
     const ist = Object.values(this.werte).reduce((s, w) => s + w.ist, 0);
@@ -387,7 +478,15 @@ class Uebung {
   }
 
   speichern() {
-    this.fortschritt[this.fassung] = {sicher: [...this.sicher]};
+    const sekunden = Math.floor(this.neueSekunden);
+    if (sekunden || this.neueTakte) {
+      this.stand.sekunden += sekunden;
+      this.stand.zuletzt = Date.now();
+      fetch('/api/verlauf', {method: 'POST', body: JSON.stringify({tag: heute(), takte: this.neueTakte, sekunden})}).catch(() => {});
+      this.neueTakte = 0;
+      this.neueSekunden -= sekunden;
+    }
+    this.fortschritt[this.fassung] = {...this.stand, sicher: [...this.sicher]};
     fetch(`/api/songs/${this.song.id}/fortschritt`, {method: 'POST', body: JSON.stringify(this.fortschritt)}).catch(() => {});
   }
 
@@ -408,8 +507,8 @@ class Uebung {
           <div class="ue-wahl" role="group" aria-label="Hände">
             ${[['beide', 'Beide'], ['r', 'Rechts'], ['l', 'Links']].map(([k, t]) => `<button data-haende="${k}" aria-pressed="${this.haende === k}">${t}</button>`).join('')}
           </div>
-          <div class="ue-tempo" role="group" aria-label="Tempo"><button data-tempo="-1" aria-label="Langsamer">−</button><span id="ue-tempo">100 %</span><button data-tempo="1" aria-label="Schneller">+</button></div>
-          <button class="ue-pille" id="ue-warten" aria-pressed="true">Warten</button>
+          <div class="ue-tempo" role="group" aria-label="Tempo"><button data-tempo="-1" aria-label="Langsamer">−</button><span id="ue-tempo">${this.tempo} %</span><button data-tempo="1" aria-label="Schneller">+</button></div>
+          <button class="ue-pille" id="ue-warten" aria-pressed="${this.warten}">Warten</button>
           <button class="ue-pille" id="ue-schleife" aria-pressed="false">Schleife</button>
           <button class="ue-pille" id="ue-noten" aria-pressed="false">Noten</button>
           ${f.length > 1 ? `<button class="ue-pille an" id="ue-fassung">${name[this.fassung]}</button>` : ''}
@@ -447,7 +546,7 @@ class Uebung {
     if (u === 'nochmal') { this.nochmal(); return; }
     if (t.dataset.haende) { this.haendeSetzen(t.dataset.haende); return; }
     if (t.dataset.tempo) { this.tempoStufe(+t.dataset.tempo); return; }
-    if (t.id === 'ue-warten') { this.warten = !this.warten; this.anzeigen(); return; }
+    if (t.id === 'ue-warten') { this.warten = !this.warten; Einst.setzen('warten', this.warten); this.anzeigen(); return; }
     if (t.id === 'ue-schleife') {
       if (this.schleife) this.schleife = null;
       else { const k = Math.max(0, this.takt(this.t)); this.schleife = [k, Math.min(this.taktzahl - 1, k + 3)]; this.springen(this.takt_ab + k * this.takt_s); }
@@ -464,13 +563,13 @@ class Uebung {
 
   notenUmschalten() {
     this.blatt = !this.blatt;
-    try { localStorage.setItem('klavier-noten', this.blatt ? '1' : '0'); } catch { /* nur eine Bequemlichkeit */ }
+    Einst.setzen('noten', this.blatt);
     this.anzeigen();
   }
 
   haendeSetzen(h) {
     this.haende = h;
-    try { localStorage.setItem('klavier-haende', h); } catch { /* nur eine Bequemlichkeit */ }
+    Einst.setzen('haende', h);
     for (const b of this.wurzel.querySelectorAll('[data-haende]')) b.setAttribute('aria-pressed', b.dataset.haende === h);
     this.neuPlanen();
   }
@@ -478,6 +577,7 @@ class Uebung {
   tempoStufe(r) {
     const i = STUFEN.indexOf(this.tempo);
     this.tempo = STUFEN[Math.max(0, Math.min(STUFEN.length - 1, i + r))];
+    Einst.setzen('tempo', this.tempo);
     this.anzeigen();
   }
 
@@ -555,13 +655,13 @@ class Uebung {
   wach() {
     this.leiste.classList.remove('ruhig');
     clearTimeout(this.ruhe);
-    if (this.laeuft) this.ruhe = setTimeout(() => { if (this.laeuft) this.leiste.classList.add('ruhig'); }, 2500);
+    if (this.laeuft && Einst.werte.ruhig) this.ruhe = setTimeout(() => { if (this.laeuft) this.leiste.classList.add('ruhig'); }, 2500);
   }
 
   spruehen(ton, hand) {
     const k = this.lage[ton];
     if (!k) return;
-    const farbe = hand === 0 ? '#FF4D7D' : '#FFE14D';
+    const farbe = handFarbe(hand);
     for (let i = 0; i < 14; i++) this.funken.push({x: k.mitte, y: 0, vx: (Math.random() - .5) * 90, vy: -60 - Math.random() * 140, leben: 1, f: farbe});
   }
 
@@ -580,6 +680,7 @@ class Uebung {
     const dt = this.davor === null ? 0 : Math.min(.05, (jetzt - this.davor) / 1000);
     this.davor = jetzt;
     this.schritt(dt);
+    this.bandStimmen();
     if (this.leben) {
       this.malen(jetzt, dt);
       if (this.takt(this.t) !== this.letzterTakt) {
@@ -622,7 +723,7 @@ class Uebung {
       if (oben > linie) continue;
       const k = this.lage[n.ton];
       if (!k) continue;
-      const farbe = n.hand ? '#FFE14D' : '#FF4D7D';
+      const farbe = handFarbe(n.hand);
       const pad = k.weiss ? 3 : 1;
       const klingt = n.a <= t && t < n.e;
       const dabei = this.aktiv(n);
@@ -644,7 +745,7 @@ class Uebung {
     for (const [ton, hand] of an) {
       const k = this.lage[ton];
       if (!k) continue;
-      const f = hand ? '#FFE14D' : '#FF4D7D';
+      const f = handFarbe(hand);
       const gr = c.createLinearGradient(0, linie, 0, linie - 170);
       gr.addColorStop(0, f + '55'); gr.addColorStop(1, f + '00');
       c.fillStyle = gr;
@@ -662,7 +763,7 @@ class Uebung {
     c.globalAlpha = 1;
     // Glutlinie
     const gl = c.createLinearGradient(0, 0, W, 0);
-    gl.addColorStop(0, '#FF4D7D'); gl.addColorStop(.38, '#FF4D7D'); gl.addColorStop(.62, '#FFE14D'); gl.addColorStop(1, '#FFE14D');
+    gl.addColorStop(0, handFarbe(0)); gl.addColorStop(.38, handFarbe(0)); gl.addColorStop(.62, handFarbe(1)); gl.addColorStop(1, handFarbe(1));
     c.fillStyle = gl;
     c.shadowColor = '#ffffff55'; c.shadowBlur = 10;
     c.fillRect(0, linie - 2, W, 3);
@@ -672,7 +773,7 @@ class Uebung {
     const tasteFarbe = (n) => {
       const fal = this.falsch.get(n);
       if (this.gedrueckt.get(n) === -1 || (fal && jetzt - fal < 180)) return '#E5484D';
-      return an.has(n) ? (an.get(n) ? '#FFE14D' : '#FF4D7D') : null;
+      return an.has(n) ? (handFarbe(an.get(n))) : null;
     };
     for (let n = 21; n <= 108; n++) {
       const k = this.lage[n];
@@ -745,7 +846,7 @@ class Uebung {
         const y = n.hand ? T0 - (stufe - 37) * halb : B0 - (stufe - 25) * halb;
         const x = xVon(n.a, start);
         const dabei = this.aktiv(n);
-        const f = n.hand ? '#FFE14D' : '#FF4D7D';
+        const f = handFarbe(n.hand);
         // Hilfslinien
         c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 1;
         c.beginPath();
@@ -779,7 +880,7 @@ class Uebung {
   markieren(c, x, y, puls, ton) {
     const hand = this.gruppen[this.gi]?.noten.find((n) => n.ton === ton)?.hand;
     c.globalAlpha = puls;
-    c.fillStyle = hand === 0 ? '#FF4D7D' : '#D9B800';
+    c.fillStyle = handFarbe(hand);
     c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill();
     c.globalAlpha = 1;
   }

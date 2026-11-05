@@ -71,6 +71,27 @@ class Dienst(unittest.TestCase):
         self.assertIn("Glatteis%20%E2%80%93%20Leicht.mid", h["Content-Disposition"])
         self.assertEqual(len(json.loads(self.frage("/api/songs")[1])), 1)
 
+    def test_einstellungen_bleiben(self):
+        self.assertEqual(json.loads(self.frage("/api/einstellungen")[1]), {})
+        self.frage("/api/einstellungen", json.dumps({"haende": "r"}).encode(), "POST")
+        self.assertEqual(json.loads(self.frage("/api/einstellungen")[1]), {"haende": "r"})
+
+    def test_verlauf_zaehlt_je_tag(self):
+        for _ in range(2):
+            self.frage("/api/verlauf", json.dumps({"tag": "2026-11-05", "takte": 4, "sekunden": 30}).encode(), "POST")
+        self.assertEqual(json.loads(self.frage("/api/verlauf")[1])["tage"]["2026-11-05"], {"takte": 8, "sekunden": 60})
+        with self.assertRaises(urllib.error.HTTPError) as f:
+            self.frage("/api/verlauf", json.dumps({"tag": "../boese"}).encode(), "POST")
+        self.assertEqual(f.exception.code, 400)
+
+    def test_begleitung_nimmt_die_spur_ohne_stimme(self):
+        m = self.warten(self.anlegen()["id"])
+        self.assertEqual(self.frage(f"/api/songs/{m['id']}/begleitung")[1], b"audio")
+        spuren = self.server.bibliothek.pfad(m["id"]) / "spuren"
+        spuren.mkdir()
+        (spuren / "instrumental.wav").write_bytes(b"ohne")
+        self.assertEqual(self.frage(f"/api/songs/{m['id']}/begleitung")[1], b"ohne")
+
     def test_hoerprobe_laesst_sich_vorspulen(self):
         m = self.warten(self.anlegen()["id"])
         s, b, h = self.frage(f"/api/songs/{m['id']}/leicht.m4a", kopf={"Range": "bytes=4-7"})

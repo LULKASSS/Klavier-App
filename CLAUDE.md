@@ -16,8 +16,10 @@
 
 ## Stand
 Mac-App mit Bibliothek, Umwandlung und Üben (05.11.2026). Nur Klavier: Erkennung mit dem Klaviermodell. Cover aus der Band: Regeln im Skill `musik-umwandlung`, Bau in `umwandler/cover.py`. Fertige MIDIs lassen sich direkt importieren. Üben: fallende Noten, Klavier per Web MIDI, Wartemodus, Hände einzeln, Tempo 30–100 %, Schleife durch Ziehen über die Takt-Leiste, Fortschritt je Takt.
-Notenblatt zuschaltbar (Knopf „Noten“): zwei Zeilen zu 4 Takten mit Tonart, nur Notenköpfe ohne Hälse und Balken. Klang: Sobald ein Klavier da ist, kommt „Anhören“ der Fassung per MIDI aus dem Klavier statt aus der Datei, mit der Anschlagstärke aus dem Song (Song-Seite zeigt FP-30X oder Mac-Klang). Am Klavier noch ungeprüft.
-**Üben am FP-30X von Lukas bestätigt (05.11.2026).** **Fehlt noch:** Zuhause, Einstellungen, Übungsplan, Klavier-verbinden-Bildschirm, Band leise mitlaufen, Schleifen-Ende auf den letzten vollen Ton, Trennpunkt verschieben.
+Notenblatt zuschaltbar (Knopf „Noten“): zwei Zeilen zu 4 Takten mit Tonart, nur Notenköpfe ohne Hälse und Balken. Klang: Sobald ein Klavier da ist, kommt „Anhören“ der Fassung per MIDI aus dem Klavier statt aus der Datei, mit der Anschlagstärke aus dem Song (Song-Seite zeigt FP-30X oder Mac-Klang).
+Zuhause, Übungsplan, Vor dem Spielen (auf der Song-Seite), Klavier verbinden und Einstellungen gebaut (05.11.2026), dazu Band leise dazu und Schleifen-Ende auf dem letzten vollen Ton. Bisher nur mit simuliertem Klavier und Beispielstand geprüft, Lukas testet nach seinem Meeting.
+**Üben und Klang am FP-30X von Lukas bestätigt (05.11.2026).** **Fehlt noch:** Trennpunkt verschieben, Metronom, besserer Klang ohne Klavier.
+**Annahmen, von Lukas noch nicht bestätigt:** Ein Teil hat 4 Takte, bei Songs über 40 Takten 8. Sicher ist ein Teil nach 3 Runden über 90 % mit beiden Händen, egal in welchem Tempo. Stufe 2 ab 200 gespielten Takten, Stufe 3 ab 600, Stufe 4 ab 1.200. Band ist ab Werk aus und kommt aus dem Mac, nicht aus dem Klavier.
 
 Umwandlung (Stand Glatteis und Gutmensch, nur nach Lukas' Ohr und 8 Takten Notenbild geprüft): An den Gesangstakten klingt der richtige Ton 83 % der Zeit, links 92 % Treffer. Lukas: Beat gut, Stimme noch nicht 100 %, oft passt Ansatz und Länge eines Tons nicht ganz; Gutmensch 0:28–0:32 perfekt. Kürzeres Binden und freieres Raster waren messbar schlechter. Logik kann später weiter besser werden; „Neu umwandeln“ nutzt die Spuren erneut (Sekunden statt Minuten, erstes Umwandeln hochgerechnet rund 4,5-mal so lang wie der Song). Der Maßstab liegt lokal in `testlauf/vergleich/`, Versuche unversioniert in `.cover/`.
 
@@ -25,13 +27,13 @@ Reihenfolge laut Auftrag:
 1. Repo, `CLAUDE.md`, Einrichtungsskript (erledigt)
 2. Umwandler ohne Oberfläche testen (erledigt)
 3. Plan und Testergebnisse gezeigt (erledigt)
-4. Übungsansicht mit MIDI-Eingang und Wartemodus (gebaut, am Klavier ungeprüft)
+4. Übungsansicht mit MIDI-Eingang und Wartemodus (am Klavier bestätigt)
 5. Bibliothek, Vereinfachen, Schleife, Export, Notenblatt gebaut
 6. `ui-pruefung`, Tests grün, Zielkarte nachziehen
 
 ## Aufbau
 - `desktop/main.js`: die Mac-App (Electron). Öffnet das Fenster, startet den Dienst auf einem freien Port und beendet ihn mit der App. Lukas sieht nur eine App, kein Terminal. Die installierte App enthält nur den Rahmen und läuft aus diesem Repo-Ordner (Pfad in `wurzel.txt`, beim Bauen eingesetzt): Änderungen an `app/` und `umwandler/` wirken ohne neu Bauen.
-- `app/index.html`: die Oberfläche (kein Build). Start, Songs, Hinzufügen, Umwandeln, Song. `app/ueben.js`: Üben und Web MIDI.
+- `app/index.html`: die Oberfläche (kein Build). Start, Songs, Hinzufügen, Umwandeln, Song. `app/ueben.js`: Üben, Web MIDI, Einstellungen. `app/seiten.js`: Zuhause, Übungsplan, Vor dem Spielen, Klavier verbinden, Einstellungen. `einstellungen.json` und `verlauf.json` liegen neben dem Ordner `songs/` beim Dienst, nicht im Browser-Speicher: Die App startet auf wechselndem Port, der wäre jedes Mal leer.
 - `umwandler/dienst.py`: das Innere der App, wandelt nacheinander um und setzt Abgebrochenes beim nächsten Start fort. `umwandler/auftrag.py` wandelt einen Song im eigenen Prozess um, `spuren.py` rechnet die Spuren und `cover.py` baut daraus das Cover. Songs liegen in `~/Library/Application Support/Klavier-Trainer/songs/`.
 - `einrichten.sh`: legt `.werkzeug/` (uv), `.venv/` (Python 3.11) und `.modelle/` an. Die App startet es beim ersten Mal selbst, falls etwas fehlt.
 - `test/`: Testaufnahmen mit bekannten Noten erzeugen, Ergebnisse dagegen messen.

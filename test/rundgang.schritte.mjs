@@ -11,6 +11,17 @@ export default async (page, foto) => {
     await page.click('#los');
     await page.waitForTimeout(1100);
   }
+  if (await page.locator('#ohne-klavier').isVisible().catch(() => false)) {
+    await foto('klavier-verbinden');
+    await page.click('#ohne-klavier');
+  }
+  await page.waitForSelector('.held');
+  await page.waitForTimeout(600);
+  await foto('zuhause');
+  await page.click('#menue a[href="#einstellungen"]');
+  await page.waitForSelector('.eins');
+  await foto('einstellungen');
+  await page.click('#menue a[href="#songs"]');
   await page.waitForSelector('.karte');
   await page.waitForTimeout(400);
   await foto('songs');
@@ -31,6 +42,11 @@ export default async (page, foto) => {
   await page.waitForSelector('#rolle');
   await page.waitForTimeout(500);
   await foto('song');
+  await page.click('#plan-los');
+  await page.waitForSelector('.teile');
+  await foto('plan');
+  await page.goBack();
+  await page.waitForSelector('#rolle');
   await page.click('[data-fassung="original"]');
   await page.waitForTimeout(400);
   await page.click('#spiel');

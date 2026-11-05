@@ -17,6 +17,7 @@
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;font-family:var(--sans);font-variant-numeric:tabular-nums;color:var(--fg);font-size:14px;
   background:radial-gradient(ellipse 900px 440px at 12% 108%,rgba(255,77,125,.11),transparent 70%),radial-gradient(ellipse 900px 440px at 88% 108%,rgba(255,225,77,.075),transparent 70%),radial-gradient(ellipse 1300px 520px at 50% -25%,rgba(255,77,125,.045),transparent 70%),var(--bg);
@@ -48,6 +49,11 @@ h1,h2{margin:0;font-weight:600}
 .kopf a{height:32px;padding:0 16px;border-radius:999px;display:inline-flex;align-items:center;font-size:13px;color:var(--fg-2);transition:background .25s,color .25s}
 .kopf a:hover{color:#fff}
 .kopf a[aria-current=page]{background:rgba(255,255,255,.14);color:#fff;font-weight:500}
+.kopf-stand{position:absolute;right:32px;top:0;height:100%;display:flex;align-items:center;gap:8px;-webkit-app-region:no-drag}
+.st-pille{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);font-size:12px;color:rgba(237,237,240,.7);white-space:nowrap}
+.st-pille b{color:#fff;font-weight:600}
+.st-tage{display:flex;gap:3px}.st-tage i{width:5px;height:5px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}.st-tage i.an{background:var(--rechts);box-shadow:none}
+.st-balken{display:block;width:36px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}.st-balken i{display:block;height:100%;background:var(--rechts)}
 main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .auftritt{animation:auftritt .33s var(--ease) both}
 @keyframes auftritt{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -68,6 +74,22 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .held .text{position:relative;padding:24px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:60%}
 .held h1{font-size:34px;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .held .haupt{height:40px;padding:0 20px;font-size:13.5px;margin-top:4px}
+.held.gross{min-height:min(340px,42vh)}
+.held.gross .text{gap:8px}.held.gross h1{font-size:44px;letter-spacing:-.025em}
+.teilbalken{display:flex;gap:4px;width:min(320px,100%);margin:6px 0 8px}.teilbalken i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}
+.teilbalken i.sicher{background:var(--ok)}.teilbalken i.jetzt{background:var(--rechts);box-shadow:0 0 8px var(--rechts)}
+.knopfreihe{display:flex;align-items:center;gap:10px}.knopfreihe .pille{height:40px}
+.drei{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+.ruhe{padding:18px 20px;display:flex;flex-direction:column;gap:10px;min-height:178px}
+.ruhe-kopf{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.ruhe-kopf a:hover{color:#fff}.ruhe-kopf .gut{color:var(--ok)}
+.ruhe-zahl{font-size:30px;font-weight:600;letter-spacing:-.02em}.ruhe-zahl small{font-size:13px;font-weight:400;color:var(--fg-3);letter-spacing:0}
+.tagesbalken{display:flex;align-items:flex-end;gap:4px;height:52px;margin-top:auto}.tagesbalken i{flex:1;border-radius:3px 3px 1px 1px;background:var(--links);opacity:.75}
+.tagesbalken i.leer{background:rgba(255,255,255,.07);opacity:1}.tagesbalken i.heute{background:var(--rechts);opacity:1}
+.ruhe-zeile{display:flex;align-items:center;gap:10px;height:36px;border-top:1px solid rgba(255,255,255,.05)}.ruhe-zeile:hover .name{color:#fff}
+.ruhe-zeile i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--rechts);box-shadow:0 0 6px var(--rechts)}.ruhe-zeile i.sicher{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.ruhe-zeile .name{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ruhe-leer{margin:auto 0}.ruhe-ziel{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.zielrunden{display:flex;gap:6px;margin-top:auto}.zielrunden i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.1)}.zielrunden i.an{background:var(--ok)}
 .zieh-aktiv .held,.zieh-aktiv .ablage{box-shadow:inset 0 0 0 2px var(--rechts)}
 .reihe{display:flex;align-items:center;justify-content:space-between;margin:26px 0 16px}
 .reihe h2{font-size:15px}
@@ -121,6 +143,44 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .bahn canvas{position:absolute;inset:0;width:100%;height:100%}
 .bahn .schild{position:absolute;left:18px;top:14px;font-size:12.5px;color:rgba(237,237,240,.6)}
 
+/* Vor dem Spielen */
+.vorab{display:flex;align-items:center;gap:26px;padding:12px 18px;margin-bottom:14px}
+.vorab-feld{display:flex;flex-direction:column;gap:7px;align-items:flex-start;flex:none}
+.vorab-feld.breit{flex:1;min-width:120px}.vorab-feld canvas{width:100%;height:26px;flex:none}
+.schalter{width:40px;height:24px;border-radius:999px;position:relative;flex:none;background:rgba(255,255,255,.14);transition:background .25s}
+.schalter[aria-checked=true]{background:var(--ok)}
+.schalter::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .35s var(--ease)}
+.schalter[aria-checked=true]::after{transform:translateX(16px)}
+/* Übungsplan */
+.plan-kopf{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px}
+.plan-zahl{font-size:44px;font-weight:600;letter-spacing:-.03em;margin-top:4px}.plan-zahl small{font-size:16px;font-weight:400;color:var(--fg-2);letter-spacing:0}
+.kurve{position:relative;height:clamp(130px,22vh,200px);overflow:hidden;margin-bottom:14px}.kurve svg{position:absolute;inset:0;width:100%;height:100%}
+.kurve-tip{position:absolute;transform:translateX(-50%);font-size:12px;font-weight:600;white-space:nowrap}.kurve-tip.jetzt{color:var(--rechts)}
+.teile{display:grid;gap:8px;margin-bottom:14px}
+.teil{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);transition:transform .12s var(--ease),background .2s}
+.teil:hover{background:var(--flaeche-2)}.teil:active{transform:scale(.97)}
+.teil-kopf{display:flex;justify-content:space-between;align-items:baseline;gap:6px}.teil b{font-size:14px;font-weight:600}
+.teil-stand{font-size:12px;font-weight:600;color:rgba(237,237,240,.45)}
+.teil.sicher{background:rgba(61,182,122,.07);box-shadow:inset 0 0 0 1px rgba(61,182,122,.35)}.teil.sicher .teil-stand{color:var(--ok)}
+.teil.jetzt{background:rgba(255,225,77,.07);box-shadow:inset 0 0 0 1px rgba(255,225,77,.45)}.teil.jetzt .teil-stand{color:var(--rechts)}
+.kette{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}.kette .klein{margin-right:6px}
+.chip{height:30px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-size:12.5px;font-weight:500;background:rgba(255,255,255,.05);color:rgba(237,237,240,.65)}
+.chip:hover{color:#fff}.chip.sicher{background:rgba(61,182,122,.14);color:var(--ok)}.chip.naechste{background:rgba(255,225,77,.12);color:var(--rechts)}
+.plan-fuss{display:flex;justify-content:flex-end;align-items:center;gap:16px}
+/* Klavier verbinden */
+.verbinden{width:min(560px,100%);margin:clamp(0px,5vh,48px) auto 0;display:flex;flex-direction:column;gap:22px}
+.verbinden-kopf{display:flex;flex-direction:column;gap:6px}.verbinden h1{font-size:30px;letter-spacing:-.02em}
+#verbinden-tasten{width:100%;height:70px;border-radius:8px;background:#0A0A0C}
+.verbinden-ton{display:flex;align-items:center;justify-content:space-between;gap:12px}.verbinden-ton .pille[disabled]{opacity:.45;cursor:default}
+/* Einstellungen */
+.eins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;animation:auftritt .33s var(--ease) both}
+.eins-gruppe{padding:18px 20px;display:flex;flex-direction:column}.eins-gruppe h2{font-size:15px;margin-bottom:10px}
+.eins-zeile{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;border-top:1px solid rgba(255,255,255,.05);font-size:13.5px;color:rgba(237,237,240,.8)}
+.wahl{height:32px;max-width:240px;padding:0 10px;border:0;border-radius:999px;background:var(--flaeche-2);color:#fff;font:inherit;font-size:13px}
+.klein-pille{height:32px;font-size:13px}
+.regler{display:inline-flex;align-items:center;gap:10px}.regler input{width:150px;accent-color:#fff}.regler .klein{min-width:40px;text-align:right}
+.farben{display:flex;gap:8px}.farben button{width:28px;height:28px;border-radius:50%;background:var(--f);box-shadow:0 0 8px color-mix(in srgb,var(--f) 35%,transparent);transition:transform .12s var(--ease)}
+.farben button:active{transform:scale(.92)}.farben button[aria-pressed=true]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--f),0 0 14px var(--f)}
 /* Song */
 .songkopf{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
 .songkopf .rechts{display:flex;gap:8px}
@@ -138,7 +198,7 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .spiel:active{transform:scale(.94)}
 .zeit{font-size:13px;color:var(--fg-2);min-width:88px}
 .spieler .platz{min-width:8px}
-.songbahn{height:clamp(220px,38vh,420px);flex:none;cursor:pointer}
+.songbahn{height:clamp(150px,24vh,420px);flex:none;cursor:pointer}
 .scan{position:absolute;left:0;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 14px rgba(255,255,255,.7);will-change:transform;pointer-events:none}
 /* Üben */
 #ueben{position:fixed;inset:0;z-index:15;background:radial-gradient(ellipse 900px 440px at 12% 108%,rgba(255,77,125,.11),transparent 70%),radial-gradient(ellipse 900px 440px at 88% 108%,rgba(255,225,77,.075),transparent 70%),var(--bg)}
@@ -162,8 +222,8 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .ue-wahl,.ue-tempo{display:flex;align-items:center;padding:3px;border-radius:999px;background:var(--flaeche-2)}
 .ue-wahl button{height:26px;padding:0 10px;border-radius:999px;font-size:12.5px;color:var(--fg-2)}
 .ue-wahl button[aria-pressed=true]{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
-.ue-wahl button[data-haende=r][aria-pressed=true]{color:#FFE14D}
-.ue-wahl button[data-haende=l][aria-pressed=true]{color:#FF4D7D}
+.ue-wahl button[data-haende=r][aria-pressed=true]{color:var(--rechts)}
+.ue-wahl button[data-haende=l][aria-pressed=true]{color:var(--links)}
 .ue-tempo button{width:24px;height:26px;border-radius:999px;color:var(--fg-2);font-size:15px}
 .ue-tempo span{min-width:42px;text-align:center;font-size:12.5px;font-weight:600}
 .ue-pille{height:32px;padding:0 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--flaeche-2);color:var(--fg-2)}
@@ -174,7 +234,7 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .ue-zahl{font-size:88px;font-weight:600;line-height:.95;letter-spacing:-.04em}.ue-zahl small{font-size:44px}
 .ue-reihe{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
 #meldung{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:999px;background:#1B1B20;box-shadow:inset 0 0 0 1px rgba(255,107,143,.5);color:#FF8AA6;font-size:13px;display:none}
-@media(max-width:860px){main{padding:18px 16px 32px}.umschalter button{padding:0 12px}.zeit{min-width:0}.zwei{grid-template-columns:1fr}.fassungen{grid-template-columns:1fr}.held .text{max-width:100%}.titelfeld{max-width:100%;font-size:28px}.titelzeile{flex-wrap:wrap;gap:6px}#start h1{font-size:48px}}
+@media(max-width:860px){.spieler,.songkopf,.songkopf .rechts{flex-wrap:wrap}.plan-kopf{flex-direction:column;align-items:flex-start}.teile{grid-template-columns:repeat(2,minmax(0,1fr))!important}.drei,.eins{grid-template-columns:1fr}.vorab{flex-wrap:wrap}.kopf-stand{display:none}main{padding:18px 16px 32px}.umschalter button{padding:0 12px}.zeit{min-width:0}.zwei{grid-template-columns:1fr}.fassungen{grid-template-columns:1fr}.held .text{max-width:100%}.titelfeld{max-width:100%;font-size:28px}.titelzeile{flex-wrap:wrap;gap:6px}#start h1{font-size:48px}}
 </style>
 </head>
 <body>
@@ -182,7 +242,7 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
   <canvas id="startbild" aria-hidden="true"></canvas>
   <div class="mitte"><h1>Bereit?</h1><button class="haupt" id="los">Los geht's</button></div>
 </div>
-<header class="kopf"><nav aria-label="Hauptmenü" id="menue"></nav></header>
+<header class="kopf"><nav aria-label="Hauptmenü" id="menue"></nav><div class="kopf-stand" id="kopf-stand"></div></header>
 <main id="haupt"></main>
 <input type="file" id="waehler" accept=".m4a,.mp3,.wav,.aif,.aiff,.flac,.aac,.caf,.mp4,.mid,.midi,audio/*" hidden>
 <div id="ueben" hidden></div>
@@ -190,11 +250,11 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 <div id="meldung" role="alert"></div>
 
 <script src="ueben.js"></script>
+<script src="seiten.js"></script>
 <script>
 'use strict';
 var $ = (s, w = document) => w.querySelector(s);
 var esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
-const LINKS = '#FF4D7D', RECHTS = '#FFE14D';
 const FASSUNG = {
   leicht: {titel: 'Leicht', text: 'Melodie, links der Grundton'},
   mittel: {titel: 'Mittel', text: 'Melodie, links einfache Akkorde'},
@@ -266,7 +326,7 @@ function rolleQuer(cv, liste, dauer) {
   for (const [a, e, ton, hand] of liste) {
     const x = a / dauer * w;
     const b = Math.max(2.5, (e - a) / dauer * w);
-    note(c, x, 30 + (hi - ton) * zeile, b, Math.max(3, Math.min(9, zeile)), hand ? RECHTS : LINKS, 2, dicht ? 0 : 5);
+    note(c, x, 30 + (hi - ton) * zeile, b, Math.max(3, Math.min(9, zeile)), handFarbe(hand), 2, dicht ? 0 : 5);
   }
 }
 /** Ausschnitt hochkant wie die fallenden Noten: unten ist jetzt, oben kommt noch. */
@@ -280,7 +340,7 @@ function rolleHoch(cv, liste, von = 0, fenster = 14) {
     if (e < von || a > von + fenster) continue;
     const y2 = h - (a - von) / fenster * h;
     const y1 = h - (e - von) / fenster * h;
-    note(c, (ton - lo) * breit, y1, Math.max(3, breit * .8), Math.max(4, y2 - y1), hand ? RECHTS : LINKS, 3, 5);
+    note(c, (ton - lo) * breit, y1, Math.max(3, breit * .8), Math.max(4, y2 - y1), handFarbe(hand), 3, 5);
   }
 }
 /** Fallende Leuchtnoten. Sie kommen von außerhalb ins Bild; treffen sie, leuchtet die Taste. */
@@ -324,10 +384,10 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
         const unten = linie - (treffer - t) * v;
         const oben = unten - lang * v;
         if (unten < 0 || oben > linie) continue;
-        note(c, x, oben, b, unten - oben, hand ? RECHTS : LINKS, 5, 12 * dunkel);
+        note(c, x, oben, b, unten - oben, handFarbe(hand), 5, 12 * dunkel);
         if (unten >= linie && oben < linie) {
           an.set(ton, hand);
-          if (tasten && Math.random() < dt * 22) funken.push({x: x + b / 2, y: linie, vx: (Math.random() - .5) * 60, vy: -40 - Math.random() * 90, leben: 1, f: hand ? RECHTS : LINKS});
+          if (tasten && Math.random() < dt * 22) funken.push({x: x + b / 2, y: linie, vx: (Math.random() - .5) * 60, vy: -40 - Math.random() * 90, leben: 1, f: handFarbe(hand)});
         }
       }
     }
@@ -336,8 +396,8 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
       const k = lage[ton];
       const mitte = k.weiss ? (k.i + .5) * tb : k.i * tb;
       const g = c.createLinearGradient(0, linie, 0, linie - 150);
-      g.addColorStop(0, (hand ? RECHTS : LINKS) + '55');
-      g.addColorStop(1, (hand ? RECHTS : LINKS) + '00');
+      g.addColorStop(0, (handFarbe(hand)) + '55');
+      g.addColorStop(1, (handFarbe(hand)) + '00');
       c.fillStyle = g;
       c.beginPath(); c.moveTo(mitte - tb * .45, linie); c.lineTo(mitte + tb * .45, linie); c.lineTo(mitte + tb * 1.1, linie - 150); c.lineTo(mitte - tb * 1.1, linie - 150); c.fill();
     }
@@ -353,8 +413,8 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
     c.globalAlpha = 1;
     if (tasten) {
       const gl = c.createLinearGradient(0, 0, w, 0);
-      gl.addColorStop(.38, LINKS); gl.addColorStop(.62, RECHTS);
-      gl.addColorStop(0, LINKS); gl.addColorStop(1, RECHTS);
+      gl.addColorStop(.38, handFarbe(0)); gl.addColorStop(.62, handFarbe(1));
+      gl.addColorStop(0, handFarbe(0)); gl.addColorStop(1, handFarbe(1));
       c.fillStyle = gl;
       c.shadowColor = '#ffffff55'; c.shadowBlur = 10;
       c.fillRect(0, linie - 2, w, 3);
@@ -365,7 +425,7 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
         const hand = an.get(n);
         const g = c.createLinearGradient(0, linie, 0, h);
         if (hand === undefined) { g.addColorStop(0, '#BFC0C8'); g.addColorStop(.4, '#ECECF0'); g.addColorStop(1, '#DCDCE2'); }
-        else { const f = hand ? RECHTS : LINKS; g.addColorStop(0, '#fff'); g.addColorStop(.35, f); g.addColorStop(1, f + 'cc'); }
+        else { const f = handFarbe(hand); g.addColorStop(0, '#fff'); g.addColorStop(.35, f); g.addColorStop(1, f + 'cc'); }
         c.fillStyle = g;
         c.beginPath(); c.roundRect(k.i * tb + .5, linie + 1, tb - 1, hoeheT - 1, [0, 0, 4, 4]); c.fill();
       }
@@ -373,7 +433,7 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
         const k = lage[n];
         if (k.weiss) continue;
         const hand = an.get(n);
-        c.fillStyle = hand === undefined ? '#141418' : (hand ? RECHTS : LINKS);
+        c.fillStyle = hand === undefined ? '#141418' : (handFarbe(hand));
         c.beginPath(); c.roundRect(k.i * tb - tb * .29, linie + 1, tb * .58, hoeheT * .6, [0, 0, 3, 3]); c.fill();
       }
     }
@@ -384,10 +444,11 @@ function fallSzene(cv, {tasten = true, dunkel = 1} = {}) {
 
 /* ---------- Seiten ---------- */
 function menue() {
-  const aktiv = S.seite === 'neu' ? 'neu' : 'songs';
-  $('#menue').innerHTML = `<a href="#songs" ${aktiv === 'songs' ? 'aria-current="page"' : ''}>Songs</a><a href="#neu" ${aktiv === 'neu' ? 'aria-current="page"' : ''}>Hinzufügen</a>`;
+  const aktiv = {zuhause: 'zuhause', neu: 'neu', einstellungen: 'einstellungen', klavier: 'einstellungen'}[S.seite] || 'songs';
+  $('#menue').innerHTML = [['zuhause', 'Zuhause'], ['songs', 'Songs'], ['neu', 'Hinzufügen'], ['einstellungen', 'Einstellungen']]
+    .map(([k, t]) => `<a href="#${k}" ${aktiv === k ? 'aria-current="page"' : ''}>${t}</a>`).join('');
+  kopfStand();
 }
-const zuletztFertig = () => S.songs.find((m) => m.status === 'fertig');
 
 function standText(m) {
   if (m.status === 'fertig') return {text: m.band ? 'Cover' : '', klasse: ''};
@@ -433,33 +494,16 @@ function karte(m) {
     </div></a>`;
 }
 function seiteSongs() {
-  const held = zuletztFertig();
-  const kopf = held
-    ? `<section class="held"><canvas id="heldbild" aria-hidden="true"></canvas><div class="deck"></div>
-        <div class="text"><span class="klein">Zuletzt hinzugefügt</span><h1>${esc(held.name)}</h1>
-        <span class="klein">${esc(metaText(held))}</span><a class="haupt" href="#song/${held.id}">${ICON.spiel}Anhören</a></div></section>`
-    : `<section class="held"><canvas id="heldbild" aria-hidden="true"></canvas><div class="deck"></div>
-        <div class="text"><span class="klein">Audiodatei rein, spielbare Noten raus</span><h1>Dein erster Song</h1>
-        <button class="haupt" data-waehlen>${ICON.plus}Audiodatei wählen</button></div></section>`;
-  $('#haupt').innerHTML = `<div class="auftritt">${kopf}
-    <div class="reihe"><h2>Songs</h2></div>
+  $('#haupt').innerHTML = `<div class="auftritt">
+    <div class="reihe" style="margin-top:0"><h2>Songs</h2></div>
     <div class="raster" id="raster">${S.songs.map(karte).join('')}
       <button class="ablage" data-waehlen><span class="plus">${ICON.plus}</span>Audiodatei hierher ziehen<span class="klein">MP3, WAV, M4A</span></button>
     </div></div>`;
   S.muster = muster();
-  bilderSongs(held);
+  bilderSongs();
 }
 function muster() { return S.songs.map((m) => m.id + m.status + m.name).join('|'); }
-async function bilderSongs(held) {
-  const hb = $('#heldbild');
-  if (hb) {
-    if (held) {
-      try {
-        const n = await noten(held.id, 'original');
-        if (hb.isConnected) rolleQuer(hb, n, held.dauer);
-      } catch { /* Bild ist Beiwerk */ }
-    } else fallSzene(hb, {tasten: false, dunkel: .7});
-  }
+function bilderSongs() {
   for (const cv of document.querySelectorAll('canvas[data-rolle]')) {
     const id = cv.dataset.rolle;
     if (!id) continue;
@@ -582,7 +626,7 @@ function seiteSong() {
   if (S.fassungVon !== m.id) { S.fassung = m.band || m.midi ? 'original' : 'leicht'; S.fassungVon = m.id; S.quelle = 'fassung'; }
   $('#haupt').innerHTML = `<div class="auftritt">
     <div class="songkopf"><a class="pille zurueck" href="#songs">${ICON.zurueck}Songs</a>
-      <div class="rechts">${m.midi ? '' : '<button class="pille" id="neuwandeln">Neu umwandeln</button>'}<button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a><a class="haupt" id="ueben-los" style="height:36px;font-size:13.5px;padding:0 16px" href="#ueben/${m.id}/${S.fassung}">${ICON.spiel}Üben</a></div></div>
+      <div class="rechts">${m.midi ? '' : '<button class="pille" id="neuwandeln">Neu umwandeln</button>'}<button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a><a class="pille" id="plan-los" href="#plan/${m.id}/${S.fassung}">Übungsplan</a><a class="haupt" id="ueben-los" style="height:36px;font-size:13.5px;padding:0 16px" href="#ueben/${m.id}/${S.fassung}">${ICON.spiel}Üben</a></div></div>
     <div class="titelzeile"><input class="titelfeld" id="titel" value="${esc(m.name)}" aria-label="Songtitel" autocomplete="off"><span class="klein">${esc(metaText(m))}</span></div>
     <div class="fassungen" role="radiogroup" aria-label="Fassung" id="fassungen">
       ${Object.entries(fassungen(m)).map(([k, f]) => `<button class="fassung" role="radio" data-fassung="${k}" aria-checked="${S.fassung === k}" tabindex="${S.fassung === k ? 0 : -1}">
@@ -590,6 +634,7 @@ function seiteSong() {
         <span class="zeile"><b>${f.titel}</b><span class="klein">${zahl[k] ?? '–'} Noten</span></span>
         <span class="zeile klein">${f.text}</span></button>`).join('')}
     </div>
+    ${vorabHtml()}
     <div class="karte-grund spieler">
       <button class="spiel" id="spiel" aria-label="Abspielen">${ICON.spiel}</button>
       <span class="zeit" id="zeit">0:00 / ${minsek(m.dauer)}</span>
@@ -602,6 +647,7 @@ function seiteSong() {
     </div>
     <div class="bahn songbahn" id="bahn"><canvas id="rolle" aria-hidden="true"></canvas><div class="scan" id="scan"></div></div>
   </div>`;
+  vorabBinden();
   tonLaden(0);
   for (const k of Object.keys(fassungen(m))) noten(m.id, k).then((n) => {
     const cv = $(`canvas[data-klein="${k}"]`);
@@ -677,6 +723,8 @@ function waehleFassung(k) {
   }
   $('#laden').href = `/api/songs/${S.song.id}/${k}.mid`;
   $('#ueben-los').href = `#ueben/${S.song.id}/${k}`;
+  $('#plan-los').href = `#plan/${S.song.id}/${k}`;
+  tastenbereichZeigen();
   zeichneGross();
   if (S.quelle === 'fassung') tonLaden($('#ton').currentTime);
 }
@@ -705,20 +753,29 @@ async function starten() {
   } finally { S.laden = false; }
 }
 async function zeigen() {
-  const [ziel, id, fassung] = (location.hash.slice(1) || 'songs').split('/');
+  const hash = location.hash;
+  const [ziel, id, fassung, von, bis] = (hash.slice(1) || 'zuhause').split('/');
   const ton = $('#ton');
   if (ziel !== 'song') { Vorspiel.leeren(); ton.pause(); ton.removeAttribute('src'); ton.load(); }
   if (S.uebung) { S.uebung.beenden(); S.uebung = null; }
+  if (S.hoerer) { Midi.hoerer.delete(S.hoerer); S.hoerer = null; }
+  const raum = $('#haupt');
+  raum.onclick = raum.onchange = raum.oninput = null;
   S.seite = ziel; S.rolleDa = false;
   menue();
   window.scrollTo(0, 0);
   try {
     if (ziel === 'neu') return seiteNeu();
+    if (ziel === 'zuhause') return await seiteZuhause();
+    if (ziel === 'plan') return await seitePlan(id, fassung);
+    if (ziel === 'klavier') return seiteKlavier();
+    if (ziel === 'einstellungen') return seiteEinstellungen();
     if (ziel === 'ueben') {
       const m = await api('songs/' + id);
       const [liste, pedal, stand] = await Promise.all([noten(id, fassung), api(`songs/${id}/pedal.json`).catch(() => []), api(`songs/${id}/fortschritt.json`).catch(() => ({}))]);
-      if (S.seite !== 'ueben' || location.hash !== `#ueben/${id}/${fassung}`) return;
-      S.uebung = new window.Uebung($('#ueben'), m, fassung, liste, pedal, stand, (f) => { location.hash = `#ueben/${id}/${f}`; }, () => { location.hash = `#song/${id}`; });
+      if (S.seite !== 'ueben' || location.hash !== hash) return;
+      const bereich = von !== undefined && bis !== undefined ? [+von, +bis] : null;
+      S.uebung = new window.Uebung($('#ueben'), m, fassung, liste, pedal, stand, (f) => { location.hash = `#ueben/${id}/${f}`; }, () => { location.hash = bereich ? `#plan/${id}/${fassung}` : `#song/${id}`; }, bereich);
       return;
     }
     if (ziel === 'song' || ziel === 'umwandeln') {
@@ -830,7 +887,8 @@ window.addEventListener('resize', () => {
   clearTimeout(window.__neu);
   window.__neu = setTimeout(() => {
     if (S.seite === 'song') { zeichneGross(); scanStellen(); }
-    if (S.seite === 'songs') bilderSongs(zuletztFertig());
+    if (S.seite === 'songs') bilderSongs();
+    if (S.seite === 'song') tastenbereichZeigen();
   }, 150);
 });
 
@@ -847,11 +905,11 @@ function startZeigen() {
   los.addEventListener('click', () => {
     try { sessionStorage.setItem('klavier-start', '1'); } catch { /* egal */ }
     s.classList.add('weg');
+    if (!Einst.werte.klavierFertig) location.hash = '#klavier';
     setTimeout(() => { s.hidden = true; s.classList.add('weg-fertig'); }, 900);
   });
 }
-startZeigen();
-zeigen();
+Einst.laden().then(() => { startZeigen(); zeigen(); });
 </script>
 </body>
 </html>

@@ -35,6 +35,7 @@ class Bibliothek:
         self.warteschlange = queue.Queue()
         self.laufend = None
         self.sperre = threading.Lock()
+        self.stand = self.ordner.parent  # neben den Songs: Einstellungen und Übungsverlauf
         threading.Thread(target=self._arbeiten, daemon=True).start()
         # Was beim letzten Beenden noch nicht fertig war, läuft wieder an
         for m in self.alle():
@@ -59,6 +60,42 @@ class Bibliothek:
             if ID.match(p.name) and (p / "meta.json").exists():
                 aus.append(json.loads((p / "meta.json").read_text()))
         return sorted(aus, key=lambda m: -m["erstellt"])
+
+    def _lies_stand(self, name, leer):
+        try:
+            return json.loads((self.stand / name).read_text())
+        except (FileNotFoundError, ValueError):
+            return leer
+
+    def _schreib_stand(self, name, werte):
+        t = self.stand / (name + ".tmp")
+        t.write_text(json.dumps(werte, ensure_ascii=False))
+        t.replace(self.stand / name)
+
+    def einstellungen(self):
+        return self._lies_stand("einstellungen.json", {})
+
+    def einstellungen_setzen(self, werte):
+        if not isinstance(werte, dict):
+            raise ValueError("Einstellungen fehlen.")
+        with self.sperre:
+            self._schreib_stand("einstellungen.json", werte)
+        return werte
+
+    def verlauf(self):
+        return self._lies_stand("verlauf.json", {"tage": {}})
+
+    def verlauf_dazu(self, tag, takte, sekunden):
+        """Zählt gespielte Takte und Übungszeit je Tag zusammen."""
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(tag)):
+            raise ValueError("Ungültiger Tag.")
+        with self.sperre:
+            v = self.verlauf()
+            t = v["tage"].setdefault(tag, {"takte": 0, "sekunden": 0})
+            t["takte"] += max(0, int(takte))
+            t["sekunden"] += max(0, int(sekunden))
+            self._schreib_stand("verlauf.json", v)
+        return v
 
     def aendern(self, sid, **werte):
         with self.sperre:
@@ -204,6 +241,10 @@ def baue_handler(bib, oberflaeche):
             url = urlparse(self.path)
             teile = [unquote(t) for t in url.path.split("/") if t]
             try:
+                if teile == ["api", "einstellungen"]:
+                    return self._json(bib.einstellungen())
+                if teile == ["api", "verlauf"]:
+                    return self._json(bib.verlauf())
                 if teile[:2] == ["api", "songs"]:
                     if len(teile) == 2:
                         return self._json(bib.alle())
@@ -228,6 +269,10 @@ def baue_handler(bib, oberflaeche):
             m = bib.lese(sid)
             if datei == "aufnahme":
                 return self._datei(ordner / m["datei"])
+            if datei == "begleitung":
+                # Beim Band-Cover die Spur ohne Hauptstimme: Die Stimme spielt ja die rechte Hand
+                ohne = ordner / "spuren" / "instrumental.wav"
+                return self._datei(ohne if ohne.exists() else ordner / m["datei"])
             if datei in ("wellen.json", "pedal.json"):
                 return self._datei(ordner / datei)
             if datei == "fortschritt.json":
@@ -247,6 +292,16 @@ def baue_handler(bib, oberflaeche):
             teile = [t for t in url.path.split("/") if t]
             laenge = int(self.headers.get("Content-Length") or 0)
             try:
+                if teile in (["api", "einstellungen"], ["api", "verlauf"]):
+                    if laenge > 1024 * 1024:
+                        raise ValueError("Zu groß.")
+                    try:
+                        werte = json.loads(self.rfile.read(laenge) or b"{}")
+                    except json.JSONDecodeError:
+                        raise ValueError("Das konnte ich nicht lesen.")
+                    if teile[1] == "einstellungen":
+                        return self._json(bib.einstellungen_setzen(werte))
+                    return self._json(bib.verlauf_dazu(werte.get("tag"), werte.get("takte", 0), werte.get("sekunden", 0)))
                 if teile == ["api", "songs"]:
                     if not 0 < laenge <= MAX_BYTES:
                         self.close_connection = True
