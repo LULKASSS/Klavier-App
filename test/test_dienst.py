@@ -117,6 +117,17 @@ class Dienst(unittest.TestCase):
         self.assertTrue((pfad / "meta.json").exists())
         self.assertIsNone(neu.lese(m["id"])["fehler"])
 
+    def test_fortschritt_bleibt_erhalten(self):
+        m = self.warten(self.anlegen()["id"])
+        self.assertEqual(json.loads(self.frage(f"/api/songs/{m['id']}/fortschritt.json")[1]), {})
+        self.frage(f"/api/songs/{m['id']}/fortschritt", json.dumps({"takte": {"3": 1}}).encode(), "POST")
+        self.assertEqual(json.loads(self.frage(f"/api/songs/{m['id']}/fortschritt.json")[1]), {"takte": {"3": 1}})
+
+    def test_midi_wird_angenommen(self):
+        m = self.anlegen(datei="Stueck.mid")
+        self.assertTrue(m["midi"])
+        self.warten(m["id"])
+
     def test_oberflaeche_kommt_an(self):
         self.assertIn(b"Klavier-Trainer", self.frage("/")[1])
 

@@ -140,6 +140,37 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 .spieler .platz{min-width:8px}
 .songbahn{height:clamp(220px,38vh,420px);flex:none;cursor:pointer}
 .scan{position:absolute;left:0;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 14px rgba(255,255,255,.7);will-change:transform;pointer-events:none}
+/* Üben */
+#ueben{position:fixed;inset:0;z-index:15;background:radial-gradient(ellipse 900px 440px at 12% 108%,rgba(255,77,125,.11),transparent 70%),radial-gradient(ellipse 900px 440px at 88% 108%,rgba(255,225,77,.075),transparent 70%),var(--bg)}
+.ue-bild{position:absolute;inset:0;width:100%;height:100%}
+.ue-leiste{position:absolute;left:0;right:0;top:0;height:60px;box-sizing:border-box;padding:0 16px 0 80px;display:flex;align-items:center;gap:14px;background:rgba(8,8,10,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--linie);transition:transform .35s var(--ease);-webkit-app-region:drag}
+.ue-leiste>*{-webkit-app-region:no-drag}
+.ue-leiste.ruhig{transform:translateY(-100%)}
+.ue-rund{width:32px;height:32px;flex:none;border-radius:50%;background:var(--flaeche-2);color:rgba(237,237,240,.75);display:flex;align-items:center;justify-content:center}
+.ue-titel{display:flex;flex-direction:column;gap:1px;flex:none;max-width:170px}
+.ue-titel b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ue-titel span{font-size:12px;color:rgba(237,237,240,.55);white-space:nowrap}
+.ue-zellen{flex:1;display:grid;gap:2px;min-width:80px;height:26px;align-items:center;cursor:pointer;touch-action:none}
+.ue-zellen i{display:block;height:10px;border-radius:2px;background:rgba(255,255,255,.1)}
+.ue-zellen i.sicher{background:rgba(61,182,122,.75)}
+.ue-zellen i.schleife{background-image:repeating-linear-gradient(135deg,rgba(255,225,77,.85) 0 2px,rgba(255,225,77,.25) 2px 4px)}
+.ue-zellen i.jetzt{background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6)}
+.ue-knoepfe{display:flex;align-items:center;gap:6px;flex:none}
+.ue-klavier{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--flaeche-2);font-size:12px;color:var(--fg-3);white-space:nowrap}
+.ue-klavier::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3)}
+.ue-klavier.da{background:rgba(61,182,122,.12);color:var(--ok)}.ue-klavier.da::before{background:var(--ok)}
+.ue-wahl,.ue-tempo{display:flex;align-items:center;padding:3px;border-radius:999px;background:var(--flaeche-2)}
+.ue-wahl button{height:26px;padding:0 10px;border-radius:999px;font-size:12.5px;color:var(--fg-2)}
+.ue-wahl button[aria-pressed=true]{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
+.ue-tempo button{width:24px;height:26px;border-radius:999px;color:var(--fg-2);font-size:15px}
+.ue-tempo span{min-width:42px;text-align:center;font-size:12.5px;font-weight:600}
+.ue-pille{height:32px;padding:0 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--flaeche-2);color:var(--fg-2)}
+.ue-pille[aria-pressed=true],.ue-pille.an{background:rgba(255,255,255,.16);color:#fff}
+.ue-spiel{width:36px;height:36px;flex:none;border-radius:50%;background:#fff;color:var(--bg);display:flex;align-items:center;justify-content:center}
+.ue-ergebnis{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,5,7,.55)}
+.ue-karte{width:min(420px,92vw);padding:30px 32px;border-radius:26px;background:rgba(16,16,20,.94);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);display:flex;flex-direction:column;gap:12px}
+.ue-zahl{font-size:88px;font-weight:600;line-height:.95;letter-spacing:-.04em}.ue-zahl small{font-size:44px}
+.ue-reihe{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
 #meldung{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:999px;background:#1B1B20;box-shadow:inset 0 0 0 1px rgba(255,107,143,.5);color:#FF8AA6;font-size:13px;display:none}
 @media(max-width:860px){main{padding:18px 16px 32px}.umschalter button{padding:0 12px}.zeit{min-width:0}.zwei{grid-template-columns:1fr}.fassungen{grid-template-columns:1fr}.held .text{max-width:100%}.titelfeld{max-width:100%;font-size:28px}.titelzeile{flex-wrap:wrap;gap:6px}#start h1{font-size:48px}}
 </style>
@@ -151,14 +182,16 @@ main{max-width:1280px;margin:0 auto;padding:26px 32px 40px}
 </div>
 <header class="kopf"><nav aria-label="Hauptmenü" id="menue"></nav></header>
 <main id="haupt"></main>
-<input type="file" id="waehler" accept=".m4a,.mp3,.wav,.aif,.aiff,.flac,.aac,.caf,.mp4,audio/*" hidden>
+<input type="file" id="waehler" accept=".m4a,.mp3,.wav,.aif,.aiff,.flac,.aac,.caf,.mp4,.mid,.midi,audio/*" hidden>
+<div id="ueben" hidden></div>
 <audio id="ton" preload="auto"></audio>
 <div id="meldung" role="alert"></div>
 
+<script src="ueben.js"></script>
 <script>
 'use strict';
-const $ = (s, w = document) => w.querySelector(s);
-const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+var $ = (s, w = document) => w.querySelector(s);
+var esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const LINKS = '#FF4D7D', RECHTS = '#FFE14D';
 const FASSUNG = {
   leicht: {titel: 'Leicht', text: 'Melodie, links der Grundton'},
@@ -166,7 +199,7 @@ const FASSUNG = {
   original: {titel: 'Original', text: 'Alles, was erkannt wurde'},
 };
 const SCHRITTE = {trennen: 'Stimmen trennen', hauptstimme: 'Hauptstimme heraushören', akkorde: 'Akkorde und Instrumente finden', erkennen: 'Klavier-Noten erkennen', takt: 'Takt und Tempo finden', fassungen: 'Leicht, Mittel, Cover bauen'};
-const REIHE = (band) => band ? ['trennen', 'hauptstimme', 'akkorde', 'fassungen'] : ['erkennen', 'takt', 'fassungen'];
+const REIHE = (m) => m.midi ? ['fassungen'] : m.band ? ['trennen', 'hauptstimme', 'akkorde', 'fassungen'] : ['erkennen', 'takt', 'fassungen'];
 const ICON = {
   zurueck: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>',
   laden: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg>',
@@ -175,7 +208,7 @@ const ICON = {
   pause: '<svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/></svg>',
 };
 
-const fassungen = (m) => m.band ? {
+const fassungen = (m) => m.midi ? {original: {titel: 'Original', text: 'Wie in der Datei'}} : m.band ? {
   leicht: {titel: 'Leicht', text: 'Stimme, links der Bass'},
   mittel: {titel: 'Mittel', text: 'Stimme, links das Begleitmuster'},
   original: {titel: 'Cover', text: 'Dazu Oktaven und Instrumente'},
@@ -369,8 +402,8 @@ function metaText(m) {
 }
 function gesamtAnteil(m) {
   if (m.status === 'fertig') return 1;
-  const reihe = REIHE(m.band);
-  const gewicht = m.band ? [.4, .4, .17, .03] : [.8, .03, .17];
+  const reihe = REIHE(m);
+  const gewicht = m.midi ? [1] : m.band ? [.4, .4, .17, .03] : [.8, .03, .17];
   const i = reihe.indexOf(m.schritt);
   if (i < 0) return 0;
   return gewicht.slice(0, i).reduce((a, b) => a + b, 0) + gewicht[i] * (m.schritt === 'erkennen' ? (m.anteil || 0) : 0);
@@ -445,7 +478,7 @@ function auffrischenSongs() {
 function seiteNeu() {
   if (!S.neu) {
     $('#haupt').innerHTML = `<div class="auftritt"><div class="reihe" style="margin-top:0"><h2>Hinzufügen</h2></div>
-      <button class="ablage" data-waehlen style="min-height:min(60vh,520px)" id="grossablage"><span class="plus">${ICON.plus}</span>Audiodatei hierher ziehen oder wählen<span class="klein">MP3, WAV, M4A</span></button></div>`;
+      <button class="ablage" data-waehlen style="min-height:min(60vh,520px)" id="grossablage"><span class="plus">${ICON.plus}</span>Audio- oder MIDI-Datei hierher ziehen oder wählen<span class="klein">MP3, WAV, M4A, MID</span></button></div>`;
     return;
   }
   const f = S.neu;
@@ -455,16 +488,16 @@ function seiteNeu() {
         <label for="songname" class="klein" id="dateizeile">${esc(f.file.name)}</label>
         <input id="songname" class="feld" value="${esc(f.name)}" autocomplete="off">
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <span class="klein" id="art-titel">Was ist drauf?</span>
+      <div style="display:${f.midi ? 'none' : 'flex'};flex-direction:column;gap:8px">
+        <span class="klein" id="art-titel">Was soll daraus werden?</span>
         <div class="umschalter" role="radiogroup" aria-labelledby="art-titel" style="align-self:flex-start">
           <button role="radio" data-band="0" aria-checked="${!S.band}">Nur Klavier</button>
           <button role="radio" data-band="1" aria-checked="${S.band}">Cover aus der Band</button>
         </div>
       </div>
-      <div class="schritte">${schritteHtml({band: S.band, status: 'wartet'})}</div>
+      <div class="schritte">${schritteHtml({band: S.band, midi: f.midi, status: 'wartet'})}</div>
       <div class="platz"></div>
-      <div class="unten"><span></span><button class="haupt" id="starten" ${S.laden ? 'disabled' : ''}>${S.laden ? 'Wird geladen …' : 'Umwandeln'}</button></div>
+      <div class="unten"><span></span><button class="haupt" id="starten" ${S.laden ? 'disabled' : ''}>${S.laden ? 'Wird geladen …' : f.midi ? 'Übernehmen' : 'Umwandeln'}</button></div>
     </div>
     <div class="spalte"><div class="bahn"><canvas id="ruhe" aria-hidden="true"></canvas></div></div></div>`;
   fallSzene($('#ruhe'), {tasten: false, dunkel: .7});
@@ -474,7 +507,7 @@ function seiteNeu() {
   n.focus(); n.select();
 }
 function schritteHtml(m) {
-  const reihe = REIHE(m.band);
+  const reihe = REIHE(m);
   const jetzt = m.status === 'fertig' ? reihe.length : reihe.indexOf(m.schritt);
   return reihe.map((k, i) => {
     const fertig = i < jetzt, laeuft = i === jetzt && m.status === 'laeuft';
@@ -544,10 +577,10 @@ function seiteSong() {
   const m = S.song;
   const ton = $('#ton');
   const zahl = m.notenzahl || {};
-  if (S.fassungVon !== m.id) { S.fassung = m.band ? 'original' : 'leicht'; S.fassungVon = m.id; }
+  if (S.fassungVon !== m.id) { S.fassung = m.band || m.midi ? 'original' : 'leicht'; S.fassungVon = m.id; S.quelle = 'fassung'; }
   $('#haupt').innerHTML = `<div class="auftritt">
     <div class="songkopf"><a class="pille zurueck" href="#songs">${ICON.zurueck}Songs</a>
-      <div class="rechts"><button class="pille" id="neuwandeln">Neu umwandeln</button><button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a></div></div>
+      <div class="rechts">${m.midi ? '' : '<button class="pille" id="neuwandeln">Neu umwandeln</button>'}<button class="pille" data-loeschen>Löschen</button><a class="pille" id="laden" href="/api/songs/${m.id}/${S.fassung}.mid" download>${ICON.laden}MIDI fürs iPad</a><a class="haupt" id="ueben-los" style="height:36px;font-size:13.5px;padding:0 16px" href="#ueben/${m.id}/${S.fassung}">${ICON.spiel}Üben</a></div></div>
     <div class="titelzeile"><input class="titelfeld" id="titel" value="${esc(m.name)}" aria-label="Songtitel" autocomplete="off"><span class="klein">${esc(metaText(m))}</span></div>
     <div class="fassungen" role="radiogroup" aria-label="Fassung" id="fassungen">
       ${Object.entries(fassungen(m)).map(([k, f]) => `<button class="fassung" role="radio" data-fassung="${k}" aria-checked="${S.fassung === k}" tabindex="${S.fassung === k ? 0 : -1}">
@@ -559,15 +592,15 @@ function seiteSong() {
       <button class="spiel" id="spiel" aria-label="Abspielen">${ICON.spiel}</button>
       <span class="zeit" id="zeit">0:00 / ${minsek(m.dauer)}</span>
       <span class="platz"></span>
-      <div class="umschalter" role="radiogroup" aria-label="Was du hörst">
+      ${m.midi ? '' : `<div class="umschalter" role="radiogroup" aria-label="Was du hörst">
         <button role="radio" data-quelle="fassung" aria-checked="${S.quelle === 'fassung'}">Fassung</button>
         <button role="radio" data-quelle="aufnahme" aria-checked="${S.quelle === 'aufnahme'}">Aufnahme</button>
-      </div>
+      </div>`}
     </div>
     <div class="bahn songbahn" id="bahn"><canvas id="rolle" aria-hidden="true"></canvas><div class="scan" id="scan"></div></div>
   </div>`;
   tonLaden(0);
-  for (const k of Object.keys(FASSUNG)) noten(m.id, k).then((n) => {
+  for (const k of Object.keys(fassungen(m))) noten(m.id, k).then((n) => {
     const cv = $(`canvas[data-klein="${k}"]`);
     if (cv) rolleHoch(cv, n);
   }).catch((e) => melden(e.message));
@@ -622,6 +655,7 @@ function waehleFassung(k) {
     b.tabIndex = an ? 0 : -1;
   }
   $('#laden').href = `/api/songs/${S.song.id}/${k}.mid`;
+  $('#ueben-los').href = `#ueben/${S.song.id}/${k}`;
   zeichneGross();
   if (S.quelle === 'fassung') tonLaden($('#ton').currentTime);
 }
@@ -629,7 +663,7 @@ function waehleFassung(k) {
 /* ---------- Abläufe ---------- */
 function dateiGewaehlt(file) {
   if (!file) return;
-  S.neu = {file, name: file.name.replace(/\.[^.]+$/, '').replace(/^\d+[_\s.-]+/, '').replace(/_/g, ' ')};
+  S.neu = {file, midi: /\.midi?$/i.test(file.name), name: file.name.replace(/\.[^.]+$/, '').replace(/^\d+[_\s.-]+/, '').replace(/_/g, ' ')};
   S.band = false;
   if (location.hash === '#neu') zeigen(); else location.hash = '#neu';
 }
@@ -650,14 +684,22 @@ async function starten() {
   } finally { S.laden = false; }
 }
 async function zeigen() {
-  const [ziel, id] = (location.hash.slice(1) || 'songs').split('/');
+  const [ziel, id, fassung] = (location.hash.slice(1) || 'songs').split('/');
   const ton = $('#ton');
   if (ziel !== 'song') { ton.pause(); ton.removeAttribute('src'); ton.load(); }
+  if (S.uebung) { S.uebung.beenden(); S.uebung = null; }
   S.seite = ziel; S.rolleDa = false;
   menue();
   window.scrollTo(0, 0);
   try {
     if (ziel === 'neu') return seiteNeu();
+    if (ziel === 'ueben') {
+      const m = await api('songs/' + id);
+      const [liste, pedal, stand] = await Promise.all([noten(id, fassung), api(`songs/${id}/pedal.json`).catch(() => []), api(`songs/${id}/fortschritt.json`).catch(() => ({}))]);
+      if (S.seite !== 'ueben' || location.hash !== `#ueben/${id}/${fassung}`) return;
+      S.uebung = new window.Uebung($('#ueben'), m, fassung, liste, pedal, stand, (f) => { location.hash = `#ueben/${id}/${f}`; }, () => { location.hash = `#song/${id}`; });
+      return;
+    }
     if (ziel === 'song' || ziel === 'umwandeln') {
       S.song = await api('songs/' + id);
       if (S.seite !== ziel) return;
@@ -691,6 +733,7 @@ setInterval(async () => {
 document.addEventListener('click', async (e) => {
   const t = e.target.closest('button,[data-loeschen]');
   if (!t) return;
+  if (S.seite === 'ueben') return;
   if (t.hasAttribute('data-waehlen')) { $('#waehler').click(); return; }
   if (t.id === 'abbrechen') { S.neu = null; seiteNeu(); return; }
   if (t.id === 'starten') return starten();
@@ -737,6 +780,7 @@ function spielen() {
   if (ton.paused) ton.play().catch(() => melden('Abspielen klappt gerade nicht.')); else ton.pause();
 }
 document.addEventListener('keydown', (e) => {
+  if (S.seite === 'ueben') return;
   const feld = e.target.matches?.('input');
   if (e.key === 'Enter' && e.target.id === 'titel') { e.target.blur(); return; }
   if (S.seite !== 'song' || feld) return;

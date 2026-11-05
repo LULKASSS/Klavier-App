@@ -32,6 +32,46 @@ def welle(x):
     return [round(float(v), 3) for v in w / (w.max() + 1e-9)]
 
 
+def fertige_midi(ordner, meta):
+    """Fertige MIDI-Datei: Noten übernehmen. Zwei Spuren sind die Hände, sonst trennt die Tonhöhe."""
+    import pretty_midi
+
+    melde(schritt="fassungen")
+    try:
+        m = pretty_midi.PrettyMIDI(str(ordner / meta["datei"]))
+    except Exception as e:
+        raise ValueError("Die MIDI-Datei lässt sich nicht lesen.") from e
+    spuren = [i for i in m.instruments if not i.is_drum and i.notes]
+    if not spuren:
+        raise ValueError("In der MIDI-Datei sind keine Noten.")
+    noten = []
+    if len(spuren) == 2:
+        oben = max(spuren, key=lambda i: np.median([n.pitch for n in i.notes]))
+        for i in spuren:
+            noten += [(n.start, n.end, n.pitch, n.velocity, 1 if i is oben else 0) for n in i.notes]
+    else:
+        noten = [(n.start, n.end, n.pitch, n.velocity, 1 if n.pitch >= auf.TRENNPUNKT else 0) for i in spuren for n in i.notes]
+    noten.sort()
+    (ordner / "original.json").write_text(json.dumps([[round(a, 3), round(e, 3), t, h] for a, e, t, _, h in noten]))
+    (ordner / "original.mid").write_bytes((ordner / meta["datei"]).read_bytes())
+    pedal, an = [], None
+    for i in spuren[:1] if len(spuren) == 1 else spuren:
+        for c in i.control_changes:
+            if c.number == 64:
+                if c.value >= 64 and an is None:
+                    an = c.time
+                elif c.value < 64 and an is not None:
+                    pedal.append([round(an, 3), round(c.time, 3)])
+                    an = None
+    pedal.sort()
+    (ordner / "pedal.json").write_text(json.dumps(pedal))
+    hoerprobe([{"start": a, "ende": e, "ton": t, "anschlag": v} for a, e, t, v, _ in noten], ordner / "original", pedal)
+    tempo = float(m.get_tempo_changes()[1][0])
+    takt_s = 240 / tempo
+    ende = max(n[1] for n in noten)
+    melde(dauer=ende, bpm=round(tempo), takte=int(np.ceil(ende / takt_s)), takt_ab=0.0, takt_s=takt_s, notenzahl={"original": len(noten)})
+
+
 def cover_aus_band(ordner, meta):
     """Band-Song: Rechts die Stimme, links die Begleitung. Die Spuren werden gemerkt, Neu-Umwandeln geht dann schnell."""
     sp = berechne(ordner / meta["datei"], ordner, melde)
@@ -46,12 +86,15 @@ def cover_aus_band(ordner, meta):
         (ordner / f"{key}.json").write_text(json.dumps(
             sorted([[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1] for n in rechts] + [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 0] for n in links])))
         hoerprobe(sorted(rechts + links, key=lambda n: n["start"]), ordner / key, e["pedal"])
-    melde(bpm=round(e["bpm"]), takte=e["takte"], notenzahl={k: len(e[k]["rechts"]) + len(e[k]["links"]) for k in FASSUNGEN})
+    (ordner / "pedal.json").write_text(json.dumps([[round(a, 3), round(b, 3)] for a, b in e["pedal"]]))
+    melde(bpm=round(e["bpm"]), takte=e["takte"], takt_ab=e["takt_ab"], takt_s=e["takt_s"], notenzahl={k: len(e[k]["rechts"]) + len(e[k]["links"]) for k in FASSUNGEN})
 
 
 def umwandeln(ordner):
     ordner = Path(ordner)
     meta = json.loads((ordner / "meta.json").read_text())
+    if meta.get("midi"):
+        return fertige_midi(ordner, meta)
     try:
         x, sr = erk.lese_audio(ordner / meta["datei"])
     except Exception as e:
@@ -84,7 +127,8 @@ def umwandeln(ordner):
             [[round(n["start"], 3), round(n["ende"], 3), n["ton"], 1 if n["hand"] == "rechts" else 0] for n in zeit]))
         hoerprobe(zeit, ordner / key)
     takte = (max(n["schritt"] for n in quant) - raster.erster_takt % 4 * 4) // 16 + 1
-    melde(bpm=round(raster.bpm), takte=takte, notenzahl={k: len(v) for k, v in inhalte.items()})
+    (ordner / "pedal.json").write_text("[]")
+    melde(bpm=round(raster.bpm), takte=takte, takt_ab=float(raster.taktanfaenge()[0]), takt_s=float(4 * 60 / raster.bpm), notenzahl={k: len(v) for k, v in inhalte.items()})
 
 
 if __name__ == "__main__":

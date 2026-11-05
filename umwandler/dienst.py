@@ -20,7 +20,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 WURZEL = Path(__file__).parent.parent
-ENDUNGEN = {".m4a", ".mp3", ".wav", ".aif", ".aiff", ".flac", ".aac", ".caf", ".mp4"}
+ENDUNGEN = {".m4a", ".mp3", ".wav", ".aif", ".aiff", ".flac", ".aac", ".caf", ".mp4", ".mid", ".midi"}
 MAX_BYTES = 2 * 1024**3
 ID = re.compile(r"^[0-9a-f]{12}$")
 FASSUNGEN = {"leicht": "Leicht", "mittel": "Mittel", "original": "Original"}
@@ -87,7 +87,7 @@ class Bibliothek:
                 f.write(stueck)
                 rest -= len(stueck)
         m = {"id": sid, "name": (name or Path(datei).stem).strip()[:120] or "Ohne Titel", "herkunft": Path(datei).name[:200], "datei": ziel,
-             "band": bool(band), "status": "wartet", "schritt": None, "anteil": 0, "erstellt": time.time(), "fehler": None}
+             "band": bool(band), "midi": endung in (".mid", ".midi"), "status": "wartet", "schritt": None, "anteil": 0, "erstellt": time.time(), "fehler": None}
         (ordner / "meta.json").write_text(json.dumps(m, ensure_ascii=False))
         self.warteschlange.put(sid)
         return m
@@ -228,8 +228,11 @@ def baue_handler(bib, oberflaeche):
             m = bib.lese(sid)
             if datei == "aufnahme":
                 return self._datei(ordner / m["datei"])
-            if datei == "wellen.json":
+            if datei in ("wellen.json", "pedal.json"):
                 return self._datei(ordner / datei)
+            if datei == "fortschritt.json":
+                pfad = ordner / datei
+                return self._datei(pfad) if pfad.exists() else self._json({})
             stamm, _, endung = datei.rpartition(".")
             if stamm not in FASSUNGEN or endung not in ("mid", "json", "m4a"):
                 raise KeyError
@@ -251,6 +254,12 @@ def baue_handler(bib, oberflaeche):
                     q = parse_qs(url.query)
                     wert = lambda k: q.get(k, [""])[0]
                     return self._json(bib.anlegen(wert("name"), wert("datei"), wert("band") == "1", self.rfile.read, laenge), 201)
+                if len(teile) == 4 and teile[:2] == ["api", "songs"] and teile[3] == "fortschritt":
+                    if laenge > 1024 * 1024:
+                        raise ValueError("Zu groß.")
+                    werte = json.loads(self.rfile.read(laenge) or b"{}")
+                    (bib.pfad(teile[2]) / "fortschritt.json").write_text(json.dumps(werte))
+                    return self._json({})
                 if len(teile) == 4 and teile[:2] == ["api", "songs"] and teile[3] == "nochmal":
                     self.rfile.read(laenge)
                     return self._json(bib.nochmal(teile[2]))
