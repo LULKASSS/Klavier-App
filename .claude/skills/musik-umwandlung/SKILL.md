@@ -23,7 +23,7 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Töne binden, aber nicht über Gesangspausen halten. Pedal je halben Takt neu.
 - MIDI mit festem Tempo und Vorlauf schreiben, sonst läuft sie gegen den Song weg.
 - Refrains haben oft viele Backing-Stimmen: Bei Glatteis war die Hauptstimme dort nur rund die Hälfte aller Stimmen. Ob die Melodie darin liegt, muss das Ohr entscheiden, deshalb beide Fassungen anbieten.
-- Pausen im Song respektieren: Das Begleitmuster darf nicht durchlaufen, wo keine Akkorde klingen.
+- Pausen prüfen: `N` im Akkordmodell heißt oft nur unsicher. Begleitung schweigt nur, wenn der Song selbst leise ist (Lautstärke samt Schlagzeug), sonst Akkord aus dem Muster davor übernehmen. Sonst hört man Beat-Aussetzer.
 - Über Wiederholungen abstimmen brachte bei Glatteis nichts: Gleiche Stellen ähneln sich im 32stel-Raster höchstens zu 63 %.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
@@ -31,7 +31,7 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 Fassung und Maßstab Note für Note vergleichen (`.cover/diff.py`), daraus Regeln für den ganzen Song ableiten, nie Noten übernehmen:
 - Anschläge im Viertel auf gerade Stellen und auf das letzte Zweiunddreißigstel vor dem Schlag.
 - Takt ohne Gesang: rechts eine lange Note, die Terz des Akkords, nah an der letzten.
-- Ruhige Teile bleiben rechts einstimmig, Instrumente und Zweitöne nur in kräftigen Teilen.
+- Ruhige Teile bleiben rechts einstimmig, Instrumente und Zweitöne nur in kräftigen Teilen, klar hohe Instrumententöne auch sonst. Wo nur Backing-Stimmen klar singen, übernehmen diese.
 - Links: tiefer Basston, dann drei Akkordtöne in Sechzehnteln, der oberste gebunden.
 Die Regeln stammen aus 4 Gesangstakten einer Strophe. Für Refrains sind sie unbelegt.
 
