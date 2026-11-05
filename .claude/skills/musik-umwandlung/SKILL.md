@@ -30,6 +30,7 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Leise, aber klare Töne der Hauptstimme nur retten, wenn sie über ihrer Umgebung liegen. Allgemein gerettet überbrücken sie Silbenpausen und setzen falsche Töne vor Gesangseinsätze.
 - Eine Stimme ist nicht abgehackt: Lautstärke über die Phrase glätten, Oktaven in kräftigen Teilen durchgehend statt an und aus, Pedal nur bei Akkordwechsel lösen, Töne leicht überlappen. Einzelne kurze Füller weglassen.
 - Echte Pausen nicht hart abschneiden, sondern den letzten Akkord leise ausklingen lassen. Sonst klingt es abgehackt.
+- Mehrstimmiger Gesang: CREPE liest nur einen Ton und greift bei Oktav-Dopplungen oft die untere. Basic Pitch auf der Gesangsspur zeigt beide, dann die obere nehmen. Auch Lücken lassen sich damit füllen, das bringt aber wenig.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
 ## Muster aus dem Maßstab (Notenbild, 8 Takte)
