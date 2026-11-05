@@ -33,3 +33,4 @@ playwright-report/
 # Laufzeit der Design-Fläche, nur lokal zum Ansehen der Entwürfe
 design/support.js
 desktop/wurzel.txt
+.cover/
