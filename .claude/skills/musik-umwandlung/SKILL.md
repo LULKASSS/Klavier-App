@@ -36,12 +36,12 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 ## Werkzeuge
 | Zweck | Werkzeug | Stand |
 | --- | --- | --- |
-| Hauptstimme von Backing trennen | `audio-separator`, `mel_band_roformer_karaoke_aufr33_viperx` | PyPI, braucht ffmpeg (`imageio-ffmpeg`), Modell 913 MB, 5:23 Min. für 3:23 Song auf CPU |
+| Hauptstimme von Backing trennen | `audio-separator`, `mel_band_roformer_karaoke_aufr33_viperx` | PyPI, braucht ffmpeg (`imageio-ffmpeg`), Modell 913 MB, 5:23 Min. für einen 3:23-Song |
 | Stimmen trennen | Demucs `htdemucs_ft` | genauer als `htdemucs`, deutlich langsamer |
 | Tonhöhe | `torchcrepe`, Modell `full` | läuft |
 | Akkorde | `lv-chordia` | 11 s für einen Song, traf das Notenbild |
 | Takt | `beat-this` | läuft |
-| Cover-Modell | Etude (`Xiugapurin/Etude`) | nicht getestet, Installation von GitHub-Code wird in dieser Umgebung blockiert; Modelldaten nur nicht-kommerziell |
+| Cover-Modell | Etude (`Xiugapurin/Etude`) | läuft lokal in `.cover/etude` (rund 3 Min. je Song, Lukas hat es selbst installiert, weil die Umgebung Installationen von GitHub-Code blockiert). `torchcodec` ohne passendes ffmpeg: Audio-Laden in `extractor.py` und `run_separation.py` auf `soundfile` umgestellt, Backend `demucs`. Eine Spur ohne Handtrennung, rund 8 Noten/s. Modelldaten nur nicht-kommerziell |
 | Cover-Modell | Pop2Piano (`transformers`) | läuft, klang für Lukas schlecht |
 | Noten aus Gesang | SOME (`openvpi/SOME`) | nicht getestet |
 | Songteile | `allin1` | nicht getestet |
