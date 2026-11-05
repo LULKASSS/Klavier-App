@@ -20,14 +20,15 @@ Jede davon hat Lukas erst hören müssen, also vorher prüfen:
 - Ganze Linie transponieren, nie einzelne Töne falten. Nur echte Oktavfehler korrigieren, sonst fehlen Höhen und Tiefen.
 - Bass nicht in eine feste Lage zwingen.
 - Töne unter einer Sechzehntel und Flackern raus, aber klar getroffene kleine Schritte behalten. Zu viel Filter klingt leer, zu wenig zappelig. Maßstab: Tonwechsel je Sekunde.
-- Töne binden, aber nicht über Gesangspausen halten. Pedal je halben Takt neu.
+- Töne binden, aber nicht über Gesangspausen halten.
 - MIDI mit festem Tempo und Vorlauf schreiben, sonst läuft sie gegen den Song weg.
 - Refrains haben oft viele Backing-Stimmen: Bei Glatteis war die Hauptstimme dort nur rund die Hälfte aller Stimmen. Ob die Melodie darin liegt, muss das Ohr entscheiden, deshalb beide Fassungen anbieten.
 - Pausen prüfen: `N` im Akkordmodell heißt oft nur unsicher. Begleitung schweigt nur, wenn der Song selbst leise ist (Lautstärke samt Schlagzeug), sonst Akkord aus dem Muster davor übernehmen. Sonst hört man Beat-Aussetzer.
 - Über Wiederholungen abstimmen brachte bei Glatteis nichts: Gleiche Stellen ähneln sich im 32stel-Raster höchstens zu 63 %.
 - Filter asymmetrisch: Kurze Spitzen nach oben sind Melodie und bleiben, kurze Ausschläge nach unten fliegen eher raus. Sonst fehlen die hohen Töne.
 - Im Mix hohe Töne von Obertönen unterscheiden: F♯5 und B5 über gesungenem B3 sind Obertöne. Trotzdem klingt das Original hell, Melodie-Oktaven in der rechten Hand tragen das ins Klavier.
-- Ganz klare, aber sehr leise Töne der Hauptstimme behalten: Bei Glatteis war der vermisste hohe Ton bei 0:42 genau so einer, vielleicht ein Echo. Gesangspausen zusätzlich aus der stärksten hohen Frequenz der Instrumental-Spur füllen. Beides macht die rechte Hand voller, Dichte im Blick behalten.
+- Leise, aber klare Töne der Hauptstimme nur retten, wenn sie über ihrer Umgebung liegen. Allgemein gerettet überbrücken sie Silbenpausen und setzen falsche Töne vor Gesangseinsätze.
+- Eine Stimme ist nicht abgehackt: Lautstärke über die Phrase glätten, Oktaven in kräftigen Teilen durchgehend statt an und aus, Pedal nur bei Akkordwechsel lösen, Töne leicht überlappen. Einzelne kurze Füller weglassen.
 - Echte Pausen nicht hart abschneiden, sondern den letzten Akkord leise ausklingen lassen. Sonst klingt es abgehackt.
 - Wer Tonhöhen ausgibt, rundet: Abschneiden hat F♯ als F angezeigt und eine falsche Spur gelegt.
 
