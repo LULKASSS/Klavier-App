@@ -3,7 +3,7 @@
 ## Ziel
 - Wofür: Aus einer Audiodatei (meist ein Klavier-Cover) wird eine spielbare, auf Wunsch vereinfachte MIDI, die Lukas am Mac mit seinem Roland FP-30X üben kann wie in Synthesia.
 - Wer, wann: Lukas, abends am Klavier, MacBook auf dem Notenpult, Kopfhörer am Klavier.
-- Gelungen, wenn: Datei rein, nach wenigen Minuten spielbar; der Wartemodus erkennt seine Anschläge; eine schwere Stelle schafft er über die Schleife.
+- Gelungen, wenn: Die MIDI klingt nach dem Song (Maßstab: Lukas' zwei von Hand gesetzte MIDIs, Hollow Knight und Gravity Falls); Datei rein, nach wenigen Minuten spielbar; der Wartemodus erkennt seine Anschläge; eine schwere Stelle schafft er über die Schleife.
 - Abgenommen (04.11.2026):
   - Richtung „Mischung“ (Design-Fläche, Entwurf 1). Menü als obere Leiste mit Songtitel, Takt-Leiste (32 Zellen, sicher = grün, Schleife schraffiert) und Knöpfen (Hände, Tempo, Warten, Schleife, Vereinfacht, Noten, Pause). Farben links Pink #FF4D7D, rechts Gelb #FFE14D. Noten halb gefüllt mit leuchtendem Rand. Notenblatt unter dem Menü, die fallenden Noten beginnen darunter.
   - Bildschirme laut Design-Fläche, Seite „App“: Start (Animation), Klavier verbinden, Zuhause, Bibliothek, Umwandeln, Vor dem Spielen, Übungsplan, Üben, Schleife ziehen, Ergebnis, Einstellungen.
@@ -13,7 +13,10 @@
 - Nicht gewollt: Umwandler als eigenes Werkzeug neben der App, Terminal-Befehle für Lukas, Tasten-Animationen, die ruckelig anfangen (Lukas, 04.11.2026, am Entwurf), Web-App auf dem iPad (Safari kann kein Web MIDI), YouTube-Download, überladenes Dashboard mit großen Kacheln und Abzeichen-Leiste, fast leere Seite.
 
 ## Stand
-Mac-App steht (05.11.2026, Lukas: „bau das zusammen als service in unsrer App“): Datei rein, umwandeln, Fassungen anhören, MIDI exportieren. **Üben fehlt noch**, ebenso Zuhause, Einstellungen, Übungsplan, Schleife, Notenblatt, Trennpunkt verschieben. Lukas' Originalsongs sind noch nicht durchgelaufen.
+Mac-App steht (05.11.2026, Lukas: „bau das zusammen als service in unsrer App“): Datei rein, umwandeln, Fassungen anhören, MIDI exportieren. **Üben fehlt noch**, ebenso Zuhause, Einstellungen, Übungsplan, Schleife, Notenblatt, Trennpunkt verschieben. Erster echter Song (Glatteis, 05.11.2026): laut Lukas „wirklich schrecklich“, klingt nicht nach dem Song.
+
+Befund Glatteis (lief ohne Trennung, Vorgabe war „Nur Klavier“): Energie Bass 46 %, Schlagzeug 39 %, Gesang 12 %, Rest 3 %, es ist also kaum etwas Klavierartiges da. Oberstimme springt im Median 9 Halbtöne, Noten 0,22 s kurz, Ton-Median 78. Lukas' Vorbilder: Sprung 3–4, Noten 0,5–1 s, Ton-Median 57–60, von Hand gesetzt. Die Messwerte oben stammen aus Stücken mit Klavier und gelten für solche Songs nicht.
+Folge: Für Band-Songs ohne Klavier reicht Erkennen nicht, es braucht ein Arrangement (Melodie aus dem Gesang, Grundton aus dem Bass, Akkorde). Erste Probe liegt lokal in `testlauf/glatteis-probe/`, Lukas' Urteil steht aus. Akkordart dort noch unbrauchbar (fast alles Dur). Die Vorgabe „Nur Klavier“ ist bei Band-Songs falsch und gehört durch eine Erkennung ersetzt.
 Auftrag (Quelle aller Anforderungen): `Projektmanagement Vault/03 Ideen/Klavier-Trainer – Auftrag.md`.
 
 Messung vom 04.11.2026 gegen selbst erzeugte Aufnahmen (GS-Sample-Klavier von macOS, **kein echtes Klavier und kein echter Gesang**; Lukas' Originalsongs sind ungeprüft). F1 = Noten richtig erkannt, Melodie und Grundton aus der fertigen Fassung:
